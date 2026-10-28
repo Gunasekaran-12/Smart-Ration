@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ public class DistributionService {
     private final AuditLogService auditLogService;
     private final SseService sseService;
     private final AuthService authService;
+    private final RationBookingRepository rationBookingRepository;
 
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public synchronized DistributionResponse processDistribution(DistributionRequest req, String ipAddress) {
@@ -122,6 +124,7 @@ public class DistributionService {
                 .distributionDate(LocalDateTime.now())
                 .totalAmount(BigDecimal.ZERO)
                 .status("COMPLETED")
+                .lifecycleState("COMPLETED")
                 .receiptNotes(req.getReceiptNotes())
                 .items(new ArrayList<>())
                 .build();
@@ -198,6 +201,22 @@ public class DistributionService {
 
         distribution.setTotalAmount(runningTotalAmount);
         Distribution savedDistribution = distributionRepository.save(distribution);
+
+        // Link active slot booking if exists for this card on today's date
+        if (rationBookingRepository != null) {
+            try {
+                rationBookingRepository.findByRationCardIdOrderByBookingDateDesc(card.getId()).stream()
+                        .filter(b -> "CONFIRMED".equals(b.getStatus()) && b.getBookingDate().equals(LocalDate.now()))
+                        .findFirst()
+                        .ifPresent(b -> {
+                            b.setStatus("COMPLETED");
+                            b.setDistribution(savedDistribution);
+                            rationBookingRepository.save(b);
+                        });
+            } catch (Exception e) {
+                log.warn("Could not link active booking: {}", e.getMessage());
+            }
+        }
 
         // 7. Audit Log
         auditLogService.logAction(currentUser, "DISTRIBUTE_COMMODITIES", "DISTRIBUTION",

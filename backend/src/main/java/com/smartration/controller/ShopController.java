@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/shops")
@@ -38,5 +39,16 @@ public class ShopController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<RationShop> updateShop(@PathVariable Long id, @Valid @RequestBody RationShop shop, HttpServletRequest request) {
         return ResponseEntity.ok(shopService.updateShop(id, shop, request.getRemoteAddr()));
+    }
+
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'SHOP_OPERATOR')")
+    public ResponseEntity<RationShop> toggleShopStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, Boolean> body,
+            HttpServletRequest request
+    ) {
+        boolean isOpen = body.getOrDefault("isOpen", true);
+        return ResponseEntity.ok(shopService.toggleShopStatus(id, isOpen, request.getRemoteAddr()));
     }
 }

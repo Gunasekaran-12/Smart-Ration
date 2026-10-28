@@ -58,6 +58,8 @@ class DistributionServiceTest {
     private SseService sseService;
     @Mock
     private AuthService authService;
+    @Mock
+    private RationBookingRepository rationBookingRepository;
 
     @InjectMocks
     private DistributionService distributionService;
@@ -112,21 +114,22 @@ class DistributionServiceTest {
         when(entitlementService.getCurrentEntitlementMonth()).thenReturn("2026-10");
         when(monthlyEntitlementRepository.findByRationCardIdAndCommodityIdAndEntitlementMonth(10L, 1L, "2026-10"))
                 .thenReturn(Optional.of(entitlement));
-        // Available stock is only 5kg, but requested is 15kg
+
+        // Only 5kg available in shop warehouse, but 10kg requested
         when(stockBatchRepository.getTotalAvailableStock(1L, 1L)).thenReturn(new BigDecimal("5.00"));
 
         DistributionRequest req = DistributionRequest.builder()
                 .rationCardId(10L)
                 .shopId(1L)
-                .items(List.of(DistributionItemRequest.builder().commodityId(1L).quantity(new BigDecimal("15.00")).build()))
+                .items(List.of(DistributionItemRequest.builder().commodityId(1L).quantity(new BigDecimal("10.00")).build()))
                 .build();
 
         assertThrows(InsufficientStockException.class, () -> distributionService.processDistribution(req, "127.0.0.1"));
     }
 
     @Test
-    @DisplayName("Distribution rejects distribution to an inactive ration card")
-    void testInactiveCardRejection() {
+    @DisplayName("Distribution rejects transaction if Ration Card is inactive")
+    void testInactiveRationCardRejected() {
         card.setIsActive(false);
         when(shopRepository.findById(1L)).thenReturn(Optional.of(shop));
         when(rationCardRepository.findById(10L)).thenReturn(Optional.of(card));
@@ -134,7 +137,7 @@ class DistributionServiceTest {
         DistributionRequest req = DistributionRequest.builder()
                 .rationCardId(10L)
                 .shopId(1L)
-                .items(List.of(DistributionItemRequest.builder().commodityId(1L).quantity(new BigDecimal("10.00")).build()))
+                .items(List.of(DistributionItemRequest.builder().commodityId(1L).quantity(new BigDecimal("5.00")).build()))
                 .build();
 
         assertThrows(BadRequestException.class, () -> distributionService.processDistribution(req, "127.0.0.1"));

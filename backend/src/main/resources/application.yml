@@ -1,3 +1,4 @@
+
 server:
   port: 8080
 
@@ -6,9 +7,9 @@ spring:
     name: smart-ration-backend
 
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:smartration_db}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: ${DB_USER:root}
-    password: ${DB_PASSWORD:root}
+    url: jdbc:mysql://localhost:3306/smart?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: "Guna@123"
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -28,7 +29,7 @@ spring:
 app:
   jwt:
     secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-    expiration-ms: 86400000 # 24 hours
+    expiration-ms: 86400000
   cors:
     allowed-origins:
       - http://localhost:5173

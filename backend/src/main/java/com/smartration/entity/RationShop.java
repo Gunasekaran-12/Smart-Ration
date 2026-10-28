@@ -42,6 +42,20 @@ public class RationShop {
     @Builder.Default
     private Boolean isActive = true;
 
+    @Column(name = "is_open", nullable = false)
+    @Builder.Default
+    private Boolean isOpen = true;
+
+    @Column(name = "last_opened_at")
+    private LocalDateTime lastOpenedAt;
+
+    @Column(name = "last_closed_at")
+    private LocalDateTime lastClosedAt;
+
+    @Column(name = "operating_hours", length = 100)
+    @Builder.Default
+    private String operatingHours = "09:00 AM - 01:00 PM, 02:00 PM - 06:00 PM";
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -52,6 +66,9 @@ public class RationShop {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        if (this.lastOpenedAt == null) {
+            this.lastOpenedAt = LocalDateTime.now();
+        }
     }
 
     @PreUpdate

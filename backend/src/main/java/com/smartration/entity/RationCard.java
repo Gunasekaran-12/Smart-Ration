@@ -3,6 +3,7 @@ package com.smartration.entity;
 import com.smartration.entity.enums.CardCategory;
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,9 @@ public class RationCard {
 
     @Column(name = "head_of_family", nullable = false, length = 120)
     private String headOfFamily;
+
+    @Column(name = "date_of_birth")
+    private LocalDate dateOfBirth;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "card_category", nullable = false, length = 20)

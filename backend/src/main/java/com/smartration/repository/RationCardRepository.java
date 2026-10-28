@@ -14,6 +14,7 @@ import java.util.Optional;
 @Repository
 public interface RationCardRepository extends JpaRepository<RationCard, Long> {
     Optional<RationCard> findByCardNumber(String cardNumber);
+    Optional<RationCard> findByCardNumberIgnoreCase(String cardNumber);
     boolean existsByCardNumber(String cardNumber);
     List<RationCard> findByShopId(Long shopId);
 

@@ -281,3 +281,90 @@ export interface DashboardAnalytics {
   }>;
   recentDistributions: Distribution[];
 }
+
+
+export interface BookingSlot {
+  id: number;
+  shopId: number;
+  slotTime: string;
+  maxCapacity: number;
+  bookedCount: number;
+  availableCapacity: number;
+  isAvailable: boolean;
+}
+
+export interface RationBooking {
+  id: number;
+  bookingReference: string;
+  rationCardId: number;
+  cardNumber: string;
+  headOfFamily: string;
+  shopId: number;
+  shopNumber: string;
+  shopName: string;
+  slotDate: string;
+  slotTime: string;
+  status: 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+  commodityReservationsJson?: string;
+  createdAt: string;
+  completedAt?: string;
+}
+
+export interface SlotAvailability {
+  slotTime: string;
+  maxCapacity: number;
+  bookedCount: number;
+  availableCapacity: number;
+  isAvailable: boolean;
+}
+
+export interface OtpResponse {
+  challengeId: string;
+  rationCardId: number;
+  expiresAt: string;
+  attemptLimit: number;
+  message: string;
+  simulatedOtpForDemo?: string;
+}
+
+export interface TransactionConflict {
+  id: number;
+  distributionId?: number;
+  transactionReference: string;
+  shopId: number;
+  shopNumber: string;
+  shopName: string;
+  rationCardId: number;
+  cardNumber: string;
+  conflictType: string;
+  expectedStockJson: string;
+  actualStockJson: string;
+  status: 'OPEN' | 'RESOLVED' | 'DISMISSED';
+  remarks?: string;
+  raisedByUserId: number;
+  raisedByUsername: string;
+  resolvedByUserId?: number;
+  resolvedByUsername?: string;
+  resolvedAt?: string;
+  createdAt: string;
+}
+
+export interface WeeklyDataset {
+  weekNumber: number;
+  month: string;
+  year: number;
+  startDate: string;
+  endDate: string;
+  totalTransactions: number;
+  totalKgDistributed: number;
+  generatedAt: string;
+  records: any[];
+}
+
+export interface ChatMessage {
+  id: string;
+  text: string;
+  sender: 'user' | 'bot';
+  timestamp: string;
+  quickReplies?: string[];
+}

@@ -251,3 +251,96 @@ export const reportApi = {
     window.open(url, '_blank');
   },
 };
+
+
+export const beneficiaryAuthApi = {
+  login: async (credentials: { cardNumber: string; dateOfBirth: string; password?: string }) => {
+    const res = await api.post<AuthResponse>('/auth/beneficiary-login', credentials);
+    return res.data;
+  },
+  setupPassword: async (payload: { cardNumber: string; currentPassword?: string; newPassword: string }) => {
+    const res = await api.post<{ message: string }>('/auth/setup-password', payload);
+    return res.data;
+  },
+};
+
+export const bookingApi = {
+  getAvailableSlots: async (shopId: number, date: string) => {
+    const res = await api.get<any[]>('/bookings/slots', { params: { shopId, date } });
+    return res.data;
+  },
+  createBooking: async (payload: { rationCardId: number; shopId: number; slotDate: string; slotTime: string }) => {
+    const res = await api.post<any>('/bookings', payload);
+    return res.data;
+  },
+  getMyBookings: async (cardId?: number) => {
+    const res = await api.get<any[]>('/bookings/my', { params: cardId ? { cardId } : {} });
+    return res.data;
+  },
+  cancelBooking: async (id: number) => {
+    const res = await api.patch<any>(`/bookings/${id}/cancel`);
+    return res.data;
+  },
+};
+
+export const otpApi = {
+  generateChallenge: async (rationCardId: number) => {
+    const res = await api.post<any>('/otp/generate', { rationCardId });
+    return res.data;
+  },
+  verifyOtp: async (challengeId: string, otp: string) => {
+    const res = await api.post<{ verified: boolean; message: string }>('/otp/verify', { challengeId, otp });
+    return res.data;
+  },
+};
+
+export const reconciliationApi = {
+  getConflicts: async (shopId?: number, status?: string) => {
+    const res = await api.get<any[]>('/reconciliation/conflicts', {
+      params: { ...(shopId ? { shopId } : {}), ...(status ? { status } : {}) },
+    });
+    return res.data;
+  },
+  resolveConflict: async (conflictId: number, payload: { action: 'RESOLVED' | 'DISMISSED'; resolutionRemarks: string }) => {
+    const res = await api.post<any>(`/reconciliation/conflicts/${conflictId}/resolve`, payload);
+    return res.data;
+  },
+};
+
+export const datasetApi = {
+  getCurrentWeek: async () => {
+    const res = await api.get<any>('/datasets/current');
+    return res.data;
+  },
+  getWeekDataset: async (year: number, month: string, week: number) => {
+    const res = await api.get<any>(`/datasets/${year}/${month}/week-${week}`);
+    return res.data;
+  },
+};
+
+export const chatbotApi = {
+  sendMessage: async (message: string, cardId?: number, shopId?: number) => {
+    const res = await api.post<{
+      reply: string;
+      quickReplies: string[];
+      suggestions?: string[];
+      source?: string;
+      timestamp: string;
+    }>('/chatbot/message', {
+      message,
+      rationCardId: cardId,
+      shopId: shopId || 1,
+    });
+    return {
+      ...res.data,
+      quickReplies: res.data.quickReplies || res.data.suggestions || [],
+    };
+  },
+};
+
+export const shopStatusApi = {
+  toggleStatus: async (shopId: number, isOpen: boolean) => {
+    const res = await api.patch<RationShop>(`/shops/${shopId}/status`, null, { params: { isOpen } });
+    return res.data;
+  },
+};

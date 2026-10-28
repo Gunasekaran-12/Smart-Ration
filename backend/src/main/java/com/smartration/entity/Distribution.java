@@ -49,6 +49,16 @@ public class Distribution {
     @Builder.Default
     private String status = "COMPLETED";
 
+    @Column(name = "lifecycle_state", nullable = false, length = 40)
+    @Builder.Default
+    private String lifecycleState = "COMPLETED";
+
+    @Column(name = "expected_stock_json", columnDefinition = "TEXT")
+    private String expectedStockJson;
+
+    @Column(name = "actual_stock_json", columnDefinition = "TEXT")
+    private String actualStockJson;
+
     @Column(name = "receipt_notes")
     private String receiptNotes;
 
@@ -61,11 +71,9 @@ public class Distribution {
 
     @PrePersist
     protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
         if (this.distributionDate == null) {
             this.distributionDate = LocalDateTime.now();
-        }
-        if (this.createdAt == null) {
-            this.createdAt = LocalDateTime.now();
         }
     }
 }

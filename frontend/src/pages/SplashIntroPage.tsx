@@ -32,7 +32,11 @@ export const SplashIntroPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#f8fafc] overflow-hidden flex flex-col items-center justify-center p-4 text-slate-800 select-none">
+    <div className="relative min-h-screen w-full bg-[#070d18] overflow-hidden flex flex-col items-center justify-center p-4 text-slate-100 select-none">
+      {/* Ambient background glows */}
+      <div className="absolute top-1/4 -left-48 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-48 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+
       {/* Falling Green Leaves & Golden Sand Particles */}
       <FallingLeavesAndSand />
 
@@ -52,13 +56,13 @@ export const SplashIntroPage: React.FC = () => {
               initial={{ opacity: 0, y: -15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold font-mono tracking-wider shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-bold font-mono tracking-wider shadow-lg shadow-emerald-950/50 backdrop-blur-md"
             >
-              <Sparkles size={14} className="text-emerald-600 animate-pulse" />
-              <span>SMART PUBLIC DISTRIBUTION SYSTEM</span>
+              <Sparkles size={14} className="text-emerald-400 animate-pulse" />
+              <span>SMART RATION SHOP MANAGEMENT SYSTEM WITH REAL-TIME STOCK ANALYTICS</span>
             </motion.div>
 
-            {/* Official Smart Ration Emblem (User-Provided Logo) with 3D Hover & Float */}
+            {/* Official Smart Ration Emblem with 3D Hover & Float */}
             <motion.div
               initial={{ scale: 0.8, rotateX: 18 }}
               animate={{
@@ -75,12 +79,12 @@ export const SplashIntroPage: React.FC = () => {
               className="relative p-2"
             >
               {/* Soft Ambient Radial Halo behind logo */}
-              <div className="absolute -inset-6 rounded-full bg-gradient-to-tr from-[#0e487a]/15 via-emerald-500/10 to-amber-400/15 blur-2xl pointer-events-none" />
+              <div className="absolute -inset-6 rounded-full bg-gradient-to-tr from-emerald-500/20 via-teal-500/15 to-amber-500/15 blur-2xl pointer-events-none" />
 
               <img
                 src="/smart-ration-logo.png"
-                alt="Smart Ration Shop Management System Logo"
-                className="relative z-10 w-64 sm:w-72 md:w-80 h-auto object-contain drop-shadow-[0_20px_35px_rgba(14,72,122,0.22)] select-none pointer-events-none"
+                alt="SMART RATION SHOP MANAGEMENT SYSTEM WITH REAL-TIME STOCK ANALYTICS"
+                className="relative z-10 w-64 sm:w-72 md:w-80 h-auto object-contain drop-shadow-[0_20px_35px_rgba(16,185,129,0.25)] select-none pointer-events-none"
               />
             </motion.div>
 
@@ -92,26 +96,26 @@ export const SplashIntroPage: React.FC = () => {
               className="w-full flex flex-col items-center space-y-3 pt-2"
             >
               {/* Progress bar (5 seconds fill) */}
-              <div className="w-64 h-2 bg-slate-200/90 rounded-full overflow-hidden shadow-inner border border-slate-300/60">
+              <div className="w-64 h-2 bg-slate-900/90 rounded-full overflow-hidden shadow-inner border border-slate-700/60">
                 <motion.div
                   initial={{ width: '0%' }}
                   animate={{ width: '100%' }}
                   transition={{ duration: 5, ease: 'linear' }}
-                  className="h-full bg-gradient-to-r from-emerald-500 via-[#0e487a] to-amber-500 rounded-full"
+                  className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 rounded-full"
                 />
               </div>
 
               {/* Status Indicator & Skip Button */}
               <div className="flex items-center gap-4 pt-1">
-                <span className="text-xs font-mono text-slate-500 font-semibold tracking-wide">
-                  Opening Portal in <strong className="text-emerald-700">{secondsLeft}s</strong>...
+                <span className="text-xs font-mono text-slate-400 font-semibold tracking-wide">
+                  Opening Portal in <strong className="text-emerald-400">{secondsLeft}s</strong>...
                 </span>
 
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleExit}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-600/30 transition-all cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-lg shadow-emerald-950/50 transition-all cursor-pointer"
                 >
                   <span>Continue to Login</span>
                   <ArrowRight size={13} />
@@ -125,10 +129,10 @@ export const SplashIntroPage: React.FC = () => {
             key="splash-exit"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="relative z-10 flex flex-col items-center gap-3 text-slate-700 font-mono text-xs"
+            className="relative z-10 flex flex-col items-center gap-3 text-slate-300 font-mono text-xs"
           >
-            <div className="w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin" />
-            <span className="font-bold tracking-wider text-emerald-800">
+            <div className="w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+            <span className="font-bold tracking-wider text-emerald-400">
               INITIALIZING SECURE LOGIN COUNTER...
             </span>
           </motion.div>

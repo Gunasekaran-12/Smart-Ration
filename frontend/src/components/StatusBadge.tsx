@@ -12,23 +12,23 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
       case 'ACTIVE':
       case 'BALANCED':
       case 'AAY':
-        return 'bg-emerald-50 text-emerald-800 border-emerald-200';
+        return 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]';
       case 'IN_REVIEW':
       case 'BPL':
       case 'ADJUSTMENT_DAMAGE':
       case 'LOW_STOCK':
-        return 'bg-amber-50 text-amber-800 border-amber-200';
+        return 'bg-amber-500/15 text-amber-300 border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]';
       case 'REJECTED':
       case 'DISCREPANCY_FLAGGED':
       case 'INACTIVE':
       case 'VOIDED':
-        return 'bg-rose-50 text-rose-800 border-rose-200';
+        return 'bg-rose-500/15 text-rose-300 border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.2)]';
       case 'SUBMITTED':
       case 'INWARD_RECEIPT':
       case 'APL':
-        return 'bg-sky-50 text-sky-800 border-sky-200';
+        return 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30 shadow-[0_0_10px_rgba(6,182,212,0.2)]';
       default:
-        return 'bg-slate-100 text-slate-700 border-slate-200';
+        return 'bg-slate-800 text-slate-300 border-slate-700';
     }
   };
 

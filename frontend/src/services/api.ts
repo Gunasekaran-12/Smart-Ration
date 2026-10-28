@@ -24,8 +24,9 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      const isAuthRequest = error.config?.url?.includes('/auth/login');
-      if (!isAuthRequest) {
+      const url = error.config?.url || '';
+      const isPublicEndpoint = url.includes('/auth/') || url.includes('/chatbot/') || url.includes('/datasets/');
+      if (!isPublicEndpoint) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         if (window.location.pathname !== '/login' && window.location.pathname !== '/') {

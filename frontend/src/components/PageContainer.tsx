@@ -15,18 +15,18 @@ export const PageContainer: React.FC<PageContainerProps> = ({ title, subtitle, a
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -14 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="p-6 md:p-8 max-w-7xl mx-auto space-y-6 relative z-10"
+      className="p-3 sm:p-5 md:p-6 max-w-7xl mx-auto space-y-6 relative z-10"
     >
       {(title || actions) && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-5">
           <div>
             {title && (
-              <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900">
+              <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white">
                 {title}
               </h1>
             )}
             {subtitle && (
-              <p className="mt-1 text-sm text-slate-500 font-medium">
+              <p className="mt-1 text-sm text-slate-400 font-medium">
                 {subtitle}
               </p>
             )}

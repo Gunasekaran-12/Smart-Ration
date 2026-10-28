@@ -69,7 +69,7 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <PageContainer
-      title="Public Distribution Analytics & Operations"
+      title="Smart Ration Shop Management System with Real-Time Stock Analytics"
       subtitle="Real-time food security inventory, biometric distribution throughput, and Fair Price Shop telemetry"
       actions={
         <div className="flex items-center gap-2">
@@ -80,7 +80,7 @@ export const DashboardPage: React.FC = () => {
               onChange={(e) =>
                 setSelectedShopId(e.target.value ? Number(e.target.value) : undefined)
               }
-              className="px-3 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-300 text-slate-800 shadow-sm focus:border-emerald-500 focus:outline-none"
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-900/90 border border-white/10 text-white shadow-lg focus:border-emerald-400 focus:outline-none"
             >
               <option value="">All Fair Price Shops (Statewide)</option>
               {shops.map((s) => (
@@ -96,10 +96,10 @@ export const DashboardPage: React.FC = () => {
               setIsLoading(true);
               fetchDashboard();
             }}
-            className="p-2 rounded-xl bg-white border border-slate-300 text-slate-600 hover:text-emerald-700 hover:border-emerald-400 transition-all shadow-sm"
+            className="p-2.5 rounded-xl bg-slate-900/90 border border-white/10 text-slate-300 hover:text-emerald-400 hover:border-emerald-500/40 transition-all shadow-lg cursor-pointer"
             title="Refresh statistics"
           >
-            <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
+            <RefreshCw size={16} className={isLoading ? 'animate-spin text-emerald-400' : ''} />
           </button>
         </div>
       }
@@ -155,21 +155,21 @@ export const DashboardPage: React.FC = () => {
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"
+        className="bg-slate-900/80 border border-white/10 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur-xl overflow-hidden"
       >
-        <div className="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div className="p-5 border-b border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <PackageCheck size={18} className="text-emerald-600" />
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <PackageCheck size={18} className="text-emerald-400" />
               <span>Current Stock Balance & Estimated Stockout Burn Rate</span>
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5 font-medium">
+            <p className="text-xs text-slate-400 mt-0.5 font-medium">
               Live physical balance calculated from opening stock + warehouse receipts - distributions + adjustments
             </p>
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
-            <Clock size={13} className="text-emerald-600" />
+          <div className="flex items-center gap-1.5 text-xs text-slate-400 font-mono">
+            <Clock size={13} className="text-emerald-400" />
             <span>Updated: Just now (Live SSE)</span>
           </div>
         </div>
@@ -177,7 +177,7 @@ export const DashboardPage: React.FC = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 uppercase tracking-wider font-mono text-[11px]">
+              <tr className="bg-slate-800/80 text-slate-300 font-bold border-b border-white/10 uppercase tracking-wider font-mono text-[11px]">
                 <th className="py-3.5 px-4">Commodity</th>
                 <th className="py-3.5 px-4 text-right">Available Stock</th>
                 <th className="py-3.5 px-4 text-right">Low Stock Threshold</th>
@@ -186,52 +186,52 @@ export const DashboardPage: React.FC = () => {
                 <th className="py-3.5 px-4 text-center">Inventory Health</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-white/5 font-mono">
               {analytics?.commodityStock?.map((stock) => (
                 <tr
                   key={stock.commodityId}
-                  className="hover:bg-slate-50/80 transition-colors"
+                  className="hover:bg-emerald-500/5 transition-colors"
                 >
-                  <td className="py-3.5 px-4 font-bold text-slate-900">
+                  <td className="py-3.5 px-4 font-bold text-white font-sans">
                     {stock.commodityName}
                     <span className="block text-[10px] text-slate-400 font-mono font-normal">
                       Code: {stock.commodityCode}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 text-right font-extrabold text-sm text-slate-900 font-mono">
+                  <td className="py-3.5 px-4 text-right font-extrabold text-sm text-emerald-400">
                     {Number(stock.currentStock).toFixed(2)} {stock.measurementUnit}
                   </td>
-                  <td className="py-3.5 px-4 text-right text-slate-500 font-mono">
+                  <td className="py-3.5 px-4 text-right text-slate-400">
                     {Number(stock.lowStockThreshold).toFixed(2)} {stock.measurementUnit}
                   </td>
-                  <td className="py-3.5 px-4 text-right font-medium text-emerald-700 font-mono">
+                  <td className="py-3.5 px-4 text-right font-medium text-cyan-300">
                     {Number(stock.todayDistributed).toFixed(2)} {stock.measurementUnit}
                   </td>
-                  <td className="py-3.5 px-4 text-center font-mono">
+                  <td className="py-3.5 px-4 text-center">
                     {stock.daysUntilStockout != null ? (
                       <span
                         className={`font-bold px-2.5 py-0.5 rounded-full text-xs ${
                           stock.daysUntilStockout < 5
-                            ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                            ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
                             : stock.daysUntilStockout < 12
-                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                            : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
                         }`}
                       >
                         ~{stock.daysUntilStockout} Days
                       </span>
                     ) : (
-                      <span className="text-slate-400 italic text-[11px]">Insufficient History</span>
+                      <span className="text-slate-500 italic text-[11px]">Insufficient History</span>
                     )}
                   </td>
-                  <td className="py-3.5 px-4 text-center">
+                  <td className="py-3.5 px-4 text-center font-sans">
                     {stock.isLowStock ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">
                         <AlertTriangle size={12} />
                         Low Stock Alert
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
                         Healthy
                       </span>
                     )}
@@ -250,19 +250,19 @@ export const DashboardPage: React.FC = () => {
           initial={{ opacity: 0, x: -14 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4 }}
-          className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4"
+          className="lg:col-span-2 bg-slate-900/80 border border-white/10 rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur-xl space-y-4"
         >
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <div>
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Wheat size={16} className="text-amber-500" />
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Wheat size={16} className="text-amber-400" />
                 <span>Monthly Distribution Trends (6-Month Trailing)</span>
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-400">
                 Total kilograms distributed across Rice, Wheat, and Sugar
               </p>
             </div>
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 font-mono">
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 font-mono border border-white/10">
               Kg / Month
             </span>
           </div>
@@ -272,25 +272,25 @@ export const DashboardPage: React.FC = () => {
               <AreaChart data={analytics?.monthlyDistributionTrends || []}>
                 <defs>
                   <linearGradient id="colorRice" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.45} />
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0.02} />
                   </linearGradient>
                   <linearGradient id="colorWheat" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
+                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.45} />
                     <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.4} stroke="#e2e8f0" />
-                <XAxis dataKey="month" stroke="#64748b" fontSize={11} />
-                <YAxis stroke="#64748b" fontSize={11} />
+                <CartesianGrid strokeDasharray="3 3" opacity={0.3} stroke="#334155" />
+                <XAxis dataKey="month" stroke="#94a3b8" fontSize={11} />
+                <YAxis stroke="#94a3b8" fontSize={11} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e2e8f0',
+                    backgroundColor: '#0b1528',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
                     borderRadius: '0.75rem',
-                    color: '#0f172a',
+                    color: '#f8fafc',
                     fontSize: '12px',
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.08)',
+                    boxShadow: '0 15px 35px rgba(0,0,0,0.8), 0 0 20px rgba(16,185,129,0.2)',
                   }}
                 />
                 <Area
@@ -321,13 +321,13 @@ export const DashboardPage: React.FC = () => {
           initial={{ opacity: 0, x: 14 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4 }}
-          className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4"
+          className="bg-slate-900/80 border border-white/10 rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur-xl space-y-4"
         >
-          <div className="border-b border-slate-100 pb-3">
-            <h3 className="text-sm font-bold text-slate-900">
+          <div className="border-b border-white/10 pb-3">
+            <h3 className="text-sm font-bold text-white">
               Commodity Quota Share
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-400">
               Distribution ratio by volume this month
             </p>
           </div>
@@ -345,22 +345,22 @@ export const DashboardPage: React.FC = () => {
                   dataKey="value"
                 >
                   {(analytics?.commodityDistributionBreakdown || []).map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} stroke="#ffffff" strokeWidth={2} />
+                    <Cell key={`cell-${index}`} fill={entry.color} stroke="#070d18" strokeWidth={2} />
                   ))}
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#ffffff',
-                    border: '1px solid #e2e8f0',
+                    backgroundColor: '#0b1528',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
                     borderRadius: '0.75rem',
-                    color: '#0f172a',
+                    color: '#f8fafc',
                     fontSize: '12px',
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.08)',
+                    boxShadow: '0 15px 35px rgba(0,0,0,0.8), 0 0 20px rgba(16,185,129,0.2)',
                   }}
                   formatter={(val: any) => [`${Number(val).toFixed(1)} units`, 'Distributed']}
                 />
                 <Legend
-                  formatter={(val) => <span className="text-xs font-semibold text-slate-700">{val}</span>}
+                  formatter={(val) => <span className="text-xs font-semibold text-slate-300">{val}</span>}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -372,14 +372,14 @@ export const DashboardPage: React.FC = () => {
       {(user?.role === 'SUPER_ADMIN' || user?.role === 'AUDITOR') &&
         analytics?.shopComparisons &&
         analytics.shopComparisons.length > 0 && (
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="bg-slate-900/80 border border-white/10 rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  <Building2 size={16} className="text-emerald-600" />
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Building2 size={16} className="text-emerald-400" />
                   <span>Fair Price Shops Inter-Center Comparison</span>
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-400">
                   Regional stock holding and monthly delivery performance across outlets
                 </p>
               </div>
@@ -389,28 +389,28 @@ export const DashboardPage: React.FC = () => {
               {analytics.shopComparisons.map((sc) => (
                 <div
                   key={sc.shopId}
-                  className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs"
+                  className="p-4 rounded-xl bg-slate-800/60 border border-white/10 space-y-2 text-xs hover:border-emerald-500/40 transition-colors"
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h4 className="font-bold text-slate-900 text-sm">{sc.shopName}</h4>
-                      <span className="font-mono text-slate-500">{sc.shopNumber}</span>
+                      <h4 className="font-bold text-white text-sm">{sc.shopName}</h4>
+                      <span className="font-mono text-slate-400">{sc.shopNumber}</span>
                     </div>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-mono">
                       {sc.cardCount} Households
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200">
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
                     <div>
-                      <span className="text-slate-500 block text-[10px] font-mono">Stock Available</span>
-                      <span className="font-bold text-slate-900 font-mono">
+                      <span className="text-slate-400 block text-[10px] font-mono">Stock Available</span>
+                      <span className="font-bold text-white font-mono">
                         {Number(sc.stockAvailableKg).toFixed(1)} Kg
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-500 block text-[10px] font-mono">Monthly Dist.</span>
-                      <span className="font-bold text-amber-600 font-mono">
+                      <span className="text-slate-400 block text-[10px] font-mono">Monthly Dist.</span>
+                      <span className="font-bold text-amber-400 font-mono">
                         {Number(sc.monthlyDistributedKg).toFixed(1)} Kg
                       </span>
                     </div>
@@ -428,10 +428,10 @@ export const DashboardPage: React.FC = () => {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3"
+          className="bg-slate-900/80 border border-white/10 rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur-xl space-y-3"
         >
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h3 className="text-sm font-bold text-slate-900">
+          <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <h3 className="text-sm font-bold text-white">
               Recent Traceable Stock Movements
             </h3>
             <span className="text-[11px] text-slate-400 font-mono">Immutable Ledger</span>
@@ -441,16 +441,16 @@ export const DashboardPage: React.FC = () => {
             {analytics?.recentStockMovements?.map((m) => (
               <div
                 key={m.id}
-                className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs hover:border-emerald-300 transition-colors"
+                className="p-3 rounded-xl bg-slate-800/60 border border-white/10 flex items-center justify-between text-xs hover:border-emerald-500/40 transition-colors"
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900">
+                    <span className="font-bold text-white">
                       {m.commodityName}
                     </span>
                     <StatusBadge status={m.movementType} />
                   </div>
-                  <p className="text-[11px] text-slate-600 mt-1">
+                  <p className="text-[11px] text-slate-300 mt-1">
                     {m.reason}
                   </p>
                   <span className="text-[10px] text-slate-400 block mt-0.5 font-mono">
@@ -461,7 +461,7 @@ export const DashboardPage: React.FC = () => {
                 <div className="text-right flex-shrink-0">
                   <span
                     className={`font-mono font-bold text-sm ${
-                      Number(m.quantity) > 0 ? 'text-emerald-700' : 'text-slate-800'
+                      Number(m.quantity) > 0 ? 'text-emerald-400' : 'text-slate-200'
                     }`}
                   >
                     {Number(m.quantity) > 0 ? `+${m.quantity}` : m.quantity} {m.measurementUnit}
@@ -480,10 +480,10 @@ export const DashboardPage: React.FC = () => {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3"
+          className="bg-slate-900/80 border border-white/10 rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur-xl space-y-3"
         >
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <h3 className="text-sm font-bold text-slate-900">
+          <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <h3 className="text-sm font-bold text-white">
               Recent Completed Distributions
             </h3>
             <span className="text-[11px] text-slate-400 font-mono">POS Receipts</span>
@@ -493,14 +493,14 @@ export const DashboardPage: React.FC = () => {
             {analytics?.recentDistributions?.map((d) => (
               <div
                 key={d.id}
-                className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs hover:border-emerald-300 transition-colors"
+                className="p-3 rounded-xl bg-slate-800/60 border border-white/10 flex items-center justify-between text-xs hover:border-emerald-500/40 transition-colors"
               >
                 <div>
-                  <span className="font-mono font-bold text-slate-900 block">
+                  <span className="font-mono font-bold text-emerald-400 block">
                     {d.transactionReference}
                   </span>
-                  <span className="text-slate-600 block mt-0.5">
-                    Card: <strong>{d.cardNumber}</strong> ({d.headOfFamily})
+                  <span className="text-slate-300 block mt-0.5">
+                    Card: <strong className="text-white">{d.cardNumber}</strong> ({d.headOfFamily})
                   </span>
                   <span className="text-[10px] text-slate-400 block mt-0.5 font-mono">
                     {new Date(d.distributionDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} &bull; {d.distributedBy}
@@ -508,7 +508,7 @@ export const DashboardPage: React.FC = () => {
                 </div>
 
                 <div className="text-right">
-                  <span className="font-extrabold text-sm text-emerald-700 block font-mono">
+                  <span className="font-extrabold text-sm text-emerald-400 block font-mono">
                     ₹{Number(d.totalAmount).toFixed(2)}
                   </span>
                   <StatusBadge status={d.status} />

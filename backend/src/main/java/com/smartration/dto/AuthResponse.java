@@ -20,4 +20,5 @@ public class AuthResponse {
     private String shopName;
     private Long rationCardId;
     private String cardNumber;
+    private Boolean isTemporaryPassword;
 }

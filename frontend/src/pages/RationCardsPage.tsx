@@ -9,6 +9,7 @@ import {
   Filter,
   X,
   Users,
+  CreditCard,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { rationCardApi, shopApi } from '../services';
@@ -155,7 +156,7 @@ export const RationCardsPage: React.FC = () => {
         user?.role !== 'BENEFICIARY' && user?.role !== 'AUDITOR' ? (
           <button
             onClick={openCreateModal}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/30 flex items-center gap-1.5 transition-all"
+            className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-950/50 flex items-center gap-1.5 transition-all"
           >
             <Plus size={16} />
             Enroll New Card
@@ -167,10 +168,10 @@ export const RationCardsPage: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between"
+        className="bg-slate-900/80 border border-slate-700/60 rounded-2xl p-4 shadow-[0_8px_30px_rgb(0,0,0,0.3)] backdrop-blur-xl flex flex-col sm:flex-row gap-3 items-center justify-between"
       >
         <form onSubmit={handleSearchSubmit} className="relative flex-1 w-full">
-          <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
             <Search size={16} />
           </span>
           <input
@@ -178,19 +179,19 @@ export const RationCardsPage: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by card number or head of family..."
-            className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:border-emerald-500 focus:outline-none"
+            className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-xs text-slate-100 placeholder-slate-500 focus:bg-slate-950 focus:border-emerald-500/80 focus:outline-none focus:ring-1 focus:ring-emerald-500/30 transition-all font-mono"
           />
         </form>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Filter size={16} className="text-slate-400" />
+          <Filter size={16} className="text-emerald-400" />
           <select
             value={selectedCategory}
             onChange={(e) => {
               setSelectedCategory(e.target.value);
               setPage(0);
             }}
-            className="px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-800 font-semibold focus:border-emerald-500 font-mono shadow-sm"
+            className="px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-xs text-slate-200 font-semibold focus:border-emerald-500/80 focus:outline-none font-mono shadow-sm"
           >
             <option value="">All Categories (AAY, BPL, APL)</option>
             <option value="AAY">AAY (Antyodaya Anna Yojana)</option>
@@ -204,12 +205,12 @@ export const RationCardsPage: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"
+        className="bg-slate-900/80 border border-slate-700/60 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.3)] backdrop-blur-xl overflow-hidden"
       >
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200 font-mono text-[11px]">
+              <tr className="bg-slate-950/60 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-800 font-mono text-[11px]">
                 <th className="py-3 px-4">Card Number</th>
                 <th className="py-3 px-4">Head of Family</th>
                 <th className="py-3 px-4">Category</th>
@@ -219,74 +220,83 @@ export const RationCardsPage: React.FC = () => {
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 font-mono">
-              {cards.map((c) => (
-                <tr key={c.id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-3.5 px-4 font-bold text-emerald-700">
-                    {c.cardNumber}
-                  </td>
-                  <td className="py-3.5 px-4 font-bold text-slate-900 font-sans">
-                    {c.headOfFamily}
-                    {c.phoneNumber && (
-                      <span className="block text-[11px] text-slate-400 font-normal font-mono">
-                        {c.phoneNumber}
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <StatusBadge status={c.cardCategory} />
-                  </td>
-                  <td className="py-3.5 px-4 text-center font-bold text-slate-900">
-                    {c.familyMemberCount} Persons
-                  </td>
-                  <td className="py-3.5 px-4 text-slate-700 font-sans">
-                    {c.shopName} ({c.shopNumber})
-                  </td>
-                  <td className="py-3.5 px-4 text-center">
-                    <StatusBadge status={c.isActive ? 'ACTIVE' : 'INACTIVE'} />
-                  </td>
-                  <td className="py-3.5 px-4 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => setSelectedCard(c)}
-                        className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-slate-100 transition-colors"
-                        title="View Details & Family Members"
-                      >
-                        <Eye size={16} />
-                      </button>
-                      {user?.role !== 'BENEFICIARY' && user?.role !== 'AUDITOR' && (
-                        <button
-                          onClick={() => openEditModal(c)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-slate-100 transition-colors"
-                          title="Edit Card"
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                      )}
-                    </div>
+            <tbody className="divide-y divide-slate-800/80 font-mono">
+              {cards.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-slate-500 font-sans">
+                    {isLoading ? 'Loading card directory...' : 'No ration cards found matching criteria.'}
                   </td>
                 </tr>
-              ))}
+              ) : (
+                cards.map((c) => (
+                  <tr key={c.id} className="hover:bg-slate-800/40 transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-emerald-400 flex items-center gap-2">
+                      <CreditCard size={14} className="text-emerald-500/70" />
+                      {c.cardNumber}
+                    </td>
+                    <td className="py-3.5 px-4 font-bold text-slate-100 font-sans">
+                      {c.headOfFamily}
+                      {c.phoneNumber && (
+                        <span className="block text-[11px] text-slate-400 font-normal font-mono">
+                          {c.phoneNumber}
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <StatusBadge status={c.cardCategory} />
+                    </td>
+                    <td className="py-3.5 px-4 text-center font-bold text-slate-200">
+                      {c.familyMemberCount} Persons
+                    </td>
+                    <td className="py-3.5 px-4 text-slate-300 font-sans">
+                      {c.shopName} <span className="text-slate-500 font-mono">({c.shopNumber})</span>
+                    </td>
+                    <td className="py-3.5 px-4 text-center">
+                      <StatusBadge status={c.isActive ? 'ACTIVE' : 'INACTIVE'} />
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => setSelectedCard(c)}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-400 hover:bg-slate-800/70 transition-colors"
+                          title="View Details & Family Members"
+                        >
+                          <Eye size={16} />
+                        </button>
+                        {user?.role !== 'BENEFICIARY' && user?.role !== 'AUDITOR' && (
+                          <button
+                            onClick={() => openEditModal(c)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-800/70 transition-colors"
+                            title="Edit Card"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
         {/* Pagination */}
-        <div className="p-4 border-t border-slate-100 flex justify-between items-center text-xs">
+        <div className="p-4 border-t border-slate-800/80 flex justify-between items-center text-xs">
           <button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 disabled:opacity-40"
+            className="px-3 py-1.5 rounded-lg border border-slate-700/60 bg-slate-950/50 text-slate-300 hover:bg-slate-800 disabled:opacity-40 transition-colors"
           >
             Previous
           </button>
-          <span className="text-slate-500 font-mono">
+          <span className="text-slate-400 font-mono">
             {isLoading ? 'Loading cards...' : `Page ${page + 1} of ${totalPages || 1}`}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
             disabled={page >= totalPages - 1}
-            className="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 disabled:opacity-40"
+            className="px-3 py-1.5 rounded-lg border border-slate-700/60 bg-slate-950/50 text-slate-300 hover:bg-slate-800 disabled:opacity-40 transition-colors"
           >
             Next
           </button>
@@ -296,56 +306,62 @@ export const RationCardsPage: React.FC = () => {
       {/* Card Details Modal */}
       <AnimatePresence>
         {selectedCard && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-slate-900"
+              className="bg-slate-900 border border-slate-700/70 rounded-3xl max-w-lg w-full p-6 shadow-[0_25px_60px_rgba(0,0,0,0.7)] space-y-4 text-slate-100"
             >
-              <div className="flex justify-between items-start border-b border-slate-100 pb-3">
+              <div className="flex justify-between items-start border-b border-slate-800 pb-3">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900">
+                  <h3 className="text-lg font-bold text-white">
                     {selectedCard.headOfFamily}
                   </h3>
-                  <span className="font-mono text-xs text-emerald-700 font-bold">
+                  <span className="font-mono text-xs text-emerald-400 font-bold flex items-center gap-1.5 mt-0.5">
+                    <CreditCard size={13} />
                     {selectedCard.cardNumber}
                   </span>
                 </div>
-                <button onClick={() => setSelectedCard(null)} className="text-slate-400 hover:text-slate-700">
+                <button
+                  onClick={() => setSelectedCard(null)}
+                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+                >
                   <X size={18} />
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-xs bg-slate-50 p-3.5 rounded-2xl border border-slate-200 font-mono">
+              <div className="grid grid-cols-2 gap-3 text-xs bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800 font-mono">
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Category</span>
-                  <StatusBadge status={selectedCard.cardCategory} />
+                  <span className="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Category</span>
+                  <div className="mt-1">
+                    <StatusBadge status={selectedCard.cardCategory} />
+                  </div>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px]">Assigned Shop</span>
-                  <span className="font-bold text-slate-900 font-sans">{selectedCard.shopName}</span>
+                  <span className="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Assigned Shop</span>
+                  <span className="font-bold text-slate-200 font-sans block mt-1">{selectedCard.shopName}</span>
                 </div>
                 <div className="col-span-2">
-                  <span className="text-slate-400 block text-[10px]">Address</span>
-                  <span className="text-slate-700 font-sans">{selectedCard.address || 'Address on record'}</span>
+                  <span className="text-slate-500 block text-[10px] uppercase font-bold tracking-wider">Address</span>
+                  <span className="text-slate-300 font-sans block mt-0.5">{selectedCard.address || 'Address on record'}</span>
                 </div>
               </div>
 
               {/* Family Members list */}
               <div>
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5 font-mono">
-                  <Users size={14} className="text-emerald-600" />
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5 font-mono">
+                  <Users size={14} className="text-emerald-400" />
                   <span>Enrolled Family Members ({selectedCard.familyMembers?.length || 0})</span>
                 </h4>
                 <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                   {selectedCard.familyMembers?.map((m, idx) => (
                     <div
                       key={idx}
-                      className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex justify-between items-center"
+                      className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-xs flex justify-between items-center"
                     >
-                      <span className="font-semibold text-slate-900">{m.fullName}</span>
-                      <span className="text-slate-500 font-mono">{m.relationship} &bull; {m.age} yrs &bull; {m.gender}</span>
+                      <span className="font-semibold text-slate-200">{m.fullName}</span>
+                      <span className="text-slate-400 font-mono">{m.relationship} &bull; {m.age} yrs &bull; {m.gender}</span>
                     </div>
                   ))}
                 </div>
@@ -354,7 +370,7 @@ export const RationCardsPage: React.FC = () => {
               <div className="pt-2 flex justify-end">
                 <button
                   onClick={() => setSelectedCard(null)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors"
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition-colors border border-slate-700"
                 >
                   Close
                 </button>
@@ -367,18 +383,22 @@ export const RationCardsPage: React.FC = () => {
       {/* Create / Edit Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm overflow-y-auto">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white border border-slate-200 rounded-3xl max-w-2xl w-full p-6 shadow-2xl my-8 space-y-4 text-xs font-mono text-slate-900"
+              className="bg-slate-900 border border-slate-700/70 rounded-3xl max-w-2xl w-full p-6 shadow-[0_25px_60px_rgba(0,0,0,0.7)] my-8 space-y-4 text-xs font-mono text-slate-100"
             >
-              <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 className="text-base font-bold text-slate-900 font-sans">
+              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 className="text-base font-bold text-white font-sans flex items-center gap-2">
+                  <CreditCard size={18} className="text-emerald-400" />
                   {editingCardId ? 'Edit Ration Cardholder' : 'Enroll New Ration Card'}
                 </h3>
-                <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-700">
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+                >
                   <X size={18} />
                 </button>
               </div>
@@ -386,7 +406,7 @@ export const RationCardsPage: React.FC = () => {
               <form onSubmit={handleSaveCard} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-semibold text-slate-700 mb-1">
+                    <label className="block font-semibold text-slate-300 mb-1">
                       Fictional Card Number
                     </label>
                     <input
@@ -394,12 +414,12 @@ export const RationCardsPage: React.FC = () => {
                       required
                       value={formData.cardNumber}
                       onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 font-bold text-slate-900 focus:bg-white focus:border-emerald-500"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 font-bold text-emerald-400 focus:bg-slate-950 focus:border-emerald-500/80 focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-slate-700 mb-1">
+                    <label className="block font-semibold text-slate-300 mb-1">
                       Head of Family
                     </label>
                     <input
@@ -408,20 +428,20 @@ export const RationCardsPage: React.FC = () => {
                       value={formData.headOfFamily}
                       onChange={(e) => setFormData({ ...formData, headOfFamily: e.target.value })}
                       placeholder="Full Name"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 font-sans focus:bg-white focus:border-emerald-500"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-slate-100 font-sans focus:bg-slate-950 focus:border-emerald-500/80 focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-semibold text-slate-700 mb-1">
+                    <label className="block font-semibold text-slate-300 mb-1">
                       Category
                     </label>
                     <select
                       value={formData.cardCategory}
                       onChange={(e) => setFormData({ ...formData, cardCategory: e.target.value as CardCategory })}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 font-semibold focus:border-emerald-500"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-slate-100 font-semibold focus:border-emerald-500/80 focus:outline-none"
                     >
                       <option value="AAY">AAY (Antyodaya Anna Yojana)</option>
                       <option value="BPL">BPL (Below Poverty Line)</option>
@@ -430,13 +450,13 @@ export const RationCardsPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-slate-700 mb-1">
+                    <label className="block font-semibold text-slate-300 mb-1">
                       Assigned Fair Price Shop
                     </label>
                     <select
                       value={formData.shopId}
                       onChange={(e) => setFormData({ ...formData, shopId: Number(e.target.value) })}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:border-emerald-500 font-sans"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-slate-100 focus:border-emerald-500/80 focus:outline-none font-sans"
                     >
                       {shops.map((s) => (
                         <option key={s.id} value={s.id}>
@@ -449,7 +469,7 @@ export const RationCardsPage: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-4 font-sans">
                   <div>
-                    <label className="block font-semibold text-slate-700 mb-1 font-mono">
+                    <label className="block font-semibold text-slate-300 mb-1 font-mono">
                       Address
                     </label>
                     <input
@@ -457,12 +477,12 @@ export const RationCardsPage: React.FC = () => {
                       value={formData.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                       placeholder="Residential address"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:bg-white focus:border-emerald-500"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-slate-100 focus:bg-slate-950 focus:border-emerald-500/80 focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-slate-700 mb-1 font-mono">
+                    <label className="block font-semibold text-slate-300 mb-1 font-mono">
                       Phone Number
                     </label>
                     <input
@@ -470,21 +490,21 @@ export const RationCardsPage: React.FC = () => {
                       value={formData.phoneNumber}
                       onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                       placeholder="+91 94444 11223"
-                      className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:bg-white focus:border-emerald-500 font-mono"
+                      className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-slate-100 focus:bg-slate-950 focus:border-emerald-500/80 focus:outline-none font-mono"
                     />
                   </div>
                 </div>
 
                 {/* Family Members Rows */}
-                <div className="pt-2 border-t border-slate-100 space-y-2">
+                <div className="pt-2 border-t border-slate-800 space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="font-bold text-slate-800">
+                    <span className="font-bold text-slate-200">
                       Family Members ({formData.familyMembers.length})
                     </span>
                     <button
                       type="button"
                       onClick={addFamilyMemberRow}
-                      className="text-emerald-700 font-bold hover:underline"
+                      className="text-emerald-400 font-bold hover:text-emerald-300 transition-colors"
                     >
                       + Add Member
                     </button>
@@ -502,7 +522,7 @@ export const RationCardsPage: React.FC = () => {
                           updated[idx].fullName = e.target.value;
                           setFormData({ ...formData, familyMembers: updated });
                         }}
-                        className="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-slate-50 text-slate-900 font-sans focus:bg-white focus:border-emerald-500"
+                        className="flex-1 px-2.5 py-1.5 rounded-lg border border-slate-700/70 bg-slate-950/60 text-slate-100 font-sans focus:bg-slate-950 focus:border-emerald-500/80 focus:outline-none"
                       />
                       <select
                         value={m.relationship}
@@ -511,7 +531,7 @@ export const RationCardsPage: React.FC = () => {
                           updated[idx].relationship = e.target.value;
                           setFormData({ ...formData, familyMembers: updated });
                         }}
-                        className="px-2 py-1.5 rounded-lg border border-slate-300 bg-slate-50 text-slate-900"
+                        className="px-2 py-1.5 rounded-lg border border-slate-700/70 bg-slate-950/60 text-slate-200 focus:border-emerald-500/80 focus:outline-none"
                       >
                         <option value="HEAD">HEAD</option>
                         <option value="SPOUSE">SPOUSE</option>
@@ -530,7 +550,7 @@ export const RationCardsPage: React.FC = () => {
                           updated[idx].age = parseInt(e.target.value) || 1;
                           setFormData({ ...formData, familyMembers: updated });
                         }}
-                        className="w-16 px-2 py-1.5 rounded-lg border border-slate-300 bg-slate-50 text-center text-slate-900"
+                        className="w-16 px-2 py-1.5 rounded-lg border border-slate-700/70 bg-slate-950/60 text-center text-slate-100 focus:border-emerald-500/80 focus:outline-none"
                       />
                       <select
                         value={m.gender}
@@ -539,7 +559,7 @@ export const RationCardsPage: React.FC = () => {
                           updated[idx].gender = e.target.value;
                           setFormData({ ...formData, familyMembers: updated });
                         }}
-                        className="px-2 py-1.5 rounded-lg border border-slate-300 bg-slate-50 text-slate-900"
+                        className="px-2 py-1.5 rounded-lg border border-slate-700/70 bg-slate-950/60 text-slate-200 focus:border-emerald-500/80 focus:outline-none"
                       >
                         <option value="MALE">M</option>
                         <option value="FEMALE">F</option>
@@ -548,7 +568,7 @@ export const RationCardsPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => removeFamilyMemberRow(idx)}
-                          className="text-rose-500 hover:text-rose-700 p-1"
+                          className="text-rose-400 hover:text-rose-300 p-1"
                         >
                           <Trash2 size={15} />
                         </button>
@@ -557,17 +577,17 @@ export const RationCardsPage: React.FC = () => {
                   ))}
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex justify-end gap-3 font-sans">
+                <div className="pt-3 border-t border-slate-800 flex justify-end gap-3 font-sans">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-100"
+                    className="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md shadow-emerald-600/30"
+                    className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-950/50 transition-all"
                   >
                     {editingCardId ? 'Save Changes' : 'Enroll Card'}
                   </button>

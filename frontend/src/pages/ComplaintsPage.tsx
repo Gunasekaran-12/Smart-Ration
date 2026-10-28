@@ -7,6 +7,8 @@ import {
   CheckCircle2,
   X,
   Send,
+  MessageSquare,
+  ShieldAlert,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { complaintApi } from '../services';
@@ -89,7 +91,7 @@ export const ComplaintsPage: React.FC = () => {
         user?.role === 'BENEFICIARY' ? (
           <button
             onClick={() => setIsSubmitOpen(true)}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/30 flex items-center gap-1.5 transition-all"
+            className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-950/50 flex items-center gap-1.5 transition-all"
           >
             <PlusCircle size={16} />
             File New Grievance
@@ -100,8 +102,9 @@ export const ComplaintsPage: React.FC = () => {
       {/* Grievance Timeline Cards */}
       <div className="space-y-4">
         {complaints.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400 text-xs font-mono shadow-sm">
-            No complaints currently recorded in system
+          <div className="bg-slate-900/80 border border-slate-700/60 rounded-2xl p-12 text-center text-slate-500 text-xs font-mono shadow-[0_8px_30px_rgb(0,0,0,0.3)] backdrop-blur-xl flex flex-col items-center justify-center gap-2">
+            <MessageSquare size={24} className="text-slate-600" />
+            <span>No complaints currently recorded in system</span>
           </div>
         ) : (
           complaints.map((c) => (
@@ -109,35 +112,36 @@ export const ComplaintsPage: React.FC = () => {
               key={c.id}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3 text-slate-900"
+              className="bg-slate-900/80 border border-slate-700/60 rounded-2xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.3)] backdrop-blur-xl space-y-3 text-slate-100"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-emerald-700">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-mono text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                    <ShieldAlert size={14} />
                     {c.complaintNumber}
                   </span>
                   <StatusBadge status={c.category} />
                   <StatusBadge status={c.status} />
                 </div>
 
-                <div className="text-xs text-slate-500 flex items-center gap-1 font-mono">
-                  <Clock size={13} className="text-slate-400" />
+                <div className="text-xs text-slate-400 flex items-center gap-1 font-mono">
+                  <Clock size={13} className="text-slate-500" />
                   <span>Filed: {new Date(c.createdAt).toLocaleString('en-IN')}</span>
                 </div>
               </div>
 
               <div>
-                <h4 className="text-sm font-bold text-slate-900">
+                <h4 className="text-sm font-bold text-white">
                   {c.subject}
                 </h4>
-                <p className="mt-1 text-xs text-slate-600 leading-relaxed font-sans">
+                <p className="mt-1 text-xs text-slate-300 leading-relaxed font-sans">
                   {c.description}
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100 gap-2 font-mono">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800 gap-2 font-mono">
                 <span>
-                  Beneficiary: <strong className="text-slate-800 font-sans">{c.beneficiaryName}</strong> &bull; Card: {c.cardNumber} &bull; Shop: {c.shopName}
+                  Beneficiary: <strong className="text-slate-200 font-sans">{c.beneficiaryName}</strong> &bull; Card: <span className="text-emerald-400">{c.cardNumber}</span> &bull; Shop: {c.shopName}
                 </span>
 
                 {user?.role !== 'BENEFICIARY' && (
@@ -148,7 +152,7 @@ export const ComplaintsPage: React.FC = () => {
                       setResolutionRemarks(c.resolutionRemarks || '');
                       setIsResolveOpen(true);
                     }}
-                    className="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 hover:text-slate-900 border border-slate-200 font-bold self-start sm:self-auto transition-colors"
+                    className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/80 rounded-lg font-bold self-start sm:self-auto transition-colors"
                   >
                     Update Redressal Status
                   </button>
@@ -156,14 +160,14 @@ export const ComplaintsPage: React.FC = () => {
               </div>
 
               {c.resolutionRemarks && (
-                <div className="mt-2 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs space-y-1">
-                  <span className="font-bold text-emerald-800 flex items-center gap-1.5 font-mono">
-                    <CheckCircle2 size={14} className="text-emerald-600" />
+                <div className="mt-2 p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-xs space-y-1 backdrop-blur-sm">
+                  <span className="font-bold text-emerald-400 flex items-center gap-1.5 font-mono">
+                    <CheckCircle2 size={14} className="text-emerald-400" />
                     Official Redressal Resolution
                   </span>
-                  <p className="text-slate-700 font-sans">{c.resolutionRemarks}</p>
+                  <p className="text-slate-200 font-sans">{c.resolutionRemarks}</p>
                   {c.resolvedBy && (
-                    <span className="block text-[10px] text-slate-500 font-mono">
+                    <span className="block text-[10px] text-slate-400 font-mono">
                       Resolved by: {c.resolvedBy} on {new Date(c.resolvedAt || '').toLocaleDateString('en-IN')}
                     </span>
                   )}
@@ -177,30 +181,33 @@ export const ComplaintsPage: React.FC = () => {
       {/* File Complaint Modal */}
       <AnimatePresence>
         {isSubmitOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-xs text-slate-900"
+              className="bg-slate-900 border border-slate-700/70 rounded-3xl max-w-lg w-full p-6 shadow-[0_25px_60px_rgba(0,0,0,0.7)] space-y-4 text-xs text-slate-100"
             >
-              <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <AlertCircle size={18} className="text-amber-500" />
+              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <AlertCircle size={18} className="text-amber-400" />
                   <span>Submit Fair Price Grievance</span>
                 </h3>
-                <button onClick={() => setIsSubmitOpen(false)} className="text-slate-400 hover:text-slate-700">
+                <button
+                  onClick={() => setIsSubmitOpen(false)}
+                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+                >
                   <X size={18} />
                 </button>
               </div>
 
               <form onSubmit={handleCreateSubmit} className="space-y-4">
                 <div>
-                  <label className="block font-semibold mb-1 text-slate-700">Grievance Category</label>
+                  <label className="block font-semibold mb-1 text-slate-300">Grievance Category</label>
                   <select
                     value={newForm.category}
                     onChange={(e) => setNewForm({ ...newForm, category: e.target.value as ComplaintCategory })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 font-semibold focus:border-emerald-500 font-mono"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-slate-100 font-semibold focus:border-emerald-500/80 focus:outline-none font-mono"
                   >
                     <option value="WEIGHMENT_ISSUE">Electronic Scale Calibration / Weighment Issue</option>
                     <option value="STOCK_UNAVAILABLE">Stock Unavailable at Fair Price Shop</option>
@@ -212,40 +219,40 @@ export const ComplaintsPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold mb-1 text-slate-700">Subject</label>
+                  <label className="block font-semibold mb-1 text-slate-300">Subject</label>
                   <input
                     type="text"
                     required
                     value={newForm.subject}
                     onChange={(e) => setNewForm({ ...newForm, subject: e.target.value })}
                     placeholder="Brief description of grievance"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 font-bold focus:border-emerald-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-slate-100 font-bold focus:border-emerald-500/80 focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold mb-1 text-slate-700">Detailed Explanation</label>
+                  <label className="block font-semibold mb-1 text-slate-300">Detailed Explanation</label>
                   <textarea
                     rows={4}
                     required
                     value={newForm.description}
                     onChange={(e) => setNewForm({ ...newForm, description: e.target.value })}
                     placeholder="Provide specific details, visit dates, and context..."
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:border-emerald-500 font-sans"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-slate-100 focus:border-emerald-500/80 focus:outline-none font-sans"
                   />
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex justify-end gap-3 font-sans">
+                <div className="pt-3 border-t border-slate-800 flex justify-end gap-3 font-sans">
                   <button
                     type="button"
                     onClick={() => setIsSubmitOpen(false)}
-                    className="px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-100"
+                    className="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md shadow-emerald-600/30 flex items-center gap-1.5"
+                    className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-950/50 flex items-center gap-1.5 transition-all"
                   >
                     <Send size={14} />
                     Submit Grievance
@@ -260,29 +267,33 @@ export const ComplaintsPage: React.FC = () => {
       {/* Resolve / Update Status Modal */}
       <AnimatePresence>
         {isResolveOpen && selectedComplaint && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-xs text-slate-900"
+              className="bg-slate-900 border border-slate-700/70 rounded-3xl max-w-lg w-full p-6 shadow-[0_25px_60px_rgba(0,0,0,0.7)] space-y-4 text-xs text-slate-100"
             >
-              <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h3 className="text-base font-bold text-slate-900">
-                  Update Redressal: {selectedComplaint.complaintNumber}
+              <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <ShieldAlert size={18} className="text-emerald-400" />
+                  <span>Update Redressal: {selectedComplaint.complaintNumber}</span>
                 </h3>
-                <button onClick={() => setIsResolveOpen(false)} className="text-slate-400 hover:text-slate-700">
+                <button
+                  onClick={() => setIsResolveOpen(false)}
+                  className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
+                >
                   <X size={18} />
                 </button>
               </div>
 
               <form onSubmit={handleResolveSubmit} className="space-y-4 font-mono">
                 <div>
-                  <label className="block font-semibold mb-1 text-slate-700">Status</label>
+                  <label className="block font-semibold mb-1 text-slate-300 font-sans">Status</label>
                   <select
                     value={resolveStatus}
                     onChange={(e) => setResolveStatus(e.target.value as ComplaintStatus)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 font-semibold focus:border-emerald-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-slate-100 font-semibold focus:border-emerald-500/80 focus:outline-none"
                   >
                     <option value="IN_REVIEW">IN_REVIEW (Under Administrative Inspection)</option>
                     <option value="RESOLVED">RESOLVED (Action Taken & Verified)</option>
@@ -291,28 +302,28 @@ export const ComplaintsPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold mb-1 text-slate-700">Resolution Remarks / Action Taken</label>
+                  <label className="block font-semibold mb-1 text-slate-300 font-sans">Resolution Remarks / Action Taken</label>
                   <textarea
                     rows={4}
                     required
                     value={resolutionRemarks}
                     onChange={(e) => setResolutionRemarks(e.target.value)}
                     placeholder="Document investigation outcome and remedial measures enacted..."
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 focus:border-emerald-500 font-sans"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-slate-100 focus:border-emerald-500/80 focus:outline-none font-sans"
                   />
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex justify-end gap-3 font-sans">
+                <div className="pt-3 border-t border-slate-800 flex justify-end gap-3 font-sans">
                   <button
                     type="button"
                     onClick={() => setIsResolveOpen(false)}
-                    className="px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-100"
+                    className="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md shadow-emerald-600/30"
+                    className="px-6 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-950/50 transition-all"
                   >
                     Confirm Status Update
                   </button>

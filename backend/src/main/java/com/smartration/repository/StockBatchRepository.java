@@ -10,6 +10,8 @@ import java.util.List;
 
 @Repository
 public interface StockBatchRepository extends JpaRepository<StockBatch, Long> {
+    List<StockBatch> findByShopIdAndCommodityId(Long shopId, Long commodityId);
+
     List<StockBatch> findByShopIdAndCommodityIdAndAvailableQuantityGreaterThanOrderByReceivedDateAsc(
             Long shopId, Long commodityId, BigDecimal minQty);
 

@@ -1,9 +1,9 @@
 <div align="center">
 
-  <img src="frontend/public/smart-ration-logo.png" alt="Smart Ration Shop Management System Emblem" width="190" style="filter: drop-shadow(0px 10px 20px rgba(14, 72, 122, 0.25));" />
+  <img src="frontend/public/smart-ration-logo.png" alt="SMART RATION SHOP MANAGEMENT SYSTEM WITH REAL-TIME STOCK ANALYTICS Emblem" width="190" style="filter: drop-shadow(0px 10px 20px rgba(14, 72, 122, 0.25));" />
 
-  # 🌾 Smart Ration Shop Management System
-  ### 📊 With Real-Time Stock Analytics & Entitlement Tracking
+  # 🌾 SMART RATION SHOP MANAGEMENT SYSTEM WITH REAL-TIME STOCK ANALYTICS
+  ### 📊 Smart Ration Shop Management System with Real-Time Stock Analytics
 
   **An enterprise-grade, full-stack digital Public Distribution System (PDS) portal designed to modernize Fair Price Shops (FPS) through verifiable stock ledgers, atomic point-of-sale distributions, statutory entitlement calculations, and live real-time inventory streaming.**
 

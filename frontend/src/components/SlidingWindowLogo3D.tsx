@@ -113,7 +113,7 @@ export const SlidingWindowLogo3D: React.FC<SlidingWindowLogoProps> = ({
             <div className="w-3 h-3 rounded-full bg-amber-400" />
             <div className="w-3 h-3 rounded-full bg-emerald-500" />
             <span className="text-[11px] font-mono font-bold tracking-wider text-emerald-800 ml-1 uppercase">
-              SMART RATION DISPENSATION WINDOW #01
+              SMART RATION SHOP MANAGEMENT SYSTEM WITH REAL-TIME STOCK ANALYTICS
             </span>
           </div>
 
@@ -136,7 +136,7 @@ export const SlidingWindowLogo3D: React.FC<SlidingWindowLogoProps> = ({
               </div>
               <div>
                 <h3 className="text-sm sm:text-base font-black tracking-tight text-white flex items-center gap-2">
-                  <span>SMART RATION SYSTEM</span>
+                  <span>SMART RATION SHOP MANAGEMENT SYSTEM WITH REAL-TIME STOCK ANALYTICS</span>
                   <span className="text-[9px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-mono">
                     NFSA v2.4
                   </span>

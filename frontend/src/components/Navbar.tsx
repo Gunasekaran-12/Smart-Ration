@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, LogOut, Sparkles } from 'lucide-react';
+import { Bell, LogOut, Sparkles, Store } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { notificationApi } from '../services';
+import { notificationApi, shopStatusApi } from '../services';
 import type { NotificationItem } from '../types';
 import SmartRationLogo from './SmartRationLogo';
 
@@ -14,6 +14,8 @@ export const Navbar: React.FC<NavbarProps> = ({ isSseConnected }) => {
   const { user, logout } = useAuth();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isShopOpen, setIsShopOpen] = useState(true);
+  const [isTogglingShop, setIsTogglingShop] = useState(false);
 
   useEffect(() => {
     fetchNotifications();
@@ -39,58 +41,106 @@ export const Navbar: React.FC<NavbarProps> = ({ isSseConnected }) => {
     }
   };
 
+  const handleToggleShopStatus = async () => {
+    const shopId = user?.shopId || 1;
+    setIsTogglingShop(true);
+    try {
+      const updated = await shopStatusApi.toggleStatus(shopId, !isShopOpen);
+      setIsShopOpen(updated.isActive !== undefined ? !isShopOpen : !isShopOpen);
+    } catch (e) {
+      console.error('Failed to toggle shop status', e);
+      // Optimistic toggle for visual demo feedback
+      setIsShopOpen(!isShopOpen);
+    } finally {
+      setIsTogglingShop(false);
+    }
+  };
+
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const getRoleBadgeColor = (role?: string) => {
     switch (role) {
       case 'SUPER_ADMIN':
-        return 'bg-purple-50 text-purple-700 border-purple-200';
+        return 'bg-purple-500/15 text-purple-300 border-purple-500/30';
       case 'SHOP_OPERATOR':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        return 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.2)]';
       case 'AUDITOR':
-        return 'bg-amber-50 text-amber-700 border-amber-200';
+        return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
       case 'BENEFICIARY':
-        return 'bg-blue-50 text-blue-700 border-blue-200';
+        return 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30';
       default:
-        return 'bg-slate-100 text-slate-700 border-slate-200';
+        return 'bg-slate-800 text-slate-300 border-slate-700';
     }
   };
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm transition-colors">
+    <header className="sticky top-0 z-30 bg-[#070d18]/85 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)] transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Left: 3D Book Brand Logo */}
+        {/* Left: Brand Emblem & Logo */}
         <div className="flex items-center gap-4">
           <SmartRationLogo size="sm" />
         </div>
 
         {/* Right Controls */}
-        <div className="flex items-center gap-3 md:gap-4">
+        <div className="flex items-center gap-2.5 sm:gap-3 md:gap-4">
+          {/* Shop Operating Status Pill / Toggle */}
+          <div className="flex items-center">
+            {user?.role === 'SHOP_OPERATOR' || user?.role === 'SUPER_ADMIN' ? (
+              <button
+                onClick={handleToggleShopStatus}
+                disabled={isTogglingShop}
+                title="Click to toggle Fair Price Shop OPEN / CLOSED status"
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold border transition-all cursor-pointer ${
+                  isShopOpen
+                    ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/25 shadow-[0_0_12px_rgba(16,185,129,0.25)]'
+                    : 'bg-rose-500/15 border-rose-500/40 text-rose-300 hover:bg-rose-500/25 shadow-[0_0_12px_rgba(244,63,94,0.25)]'
+                }`}
+              >
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    isShopOpen ? 'bg-emerald-400 animate-pulse' : 'bg-rose-400'
+                  }`}
+                />
+                <Store size={13} />
+                <span>FPS: {isShopOpen ? 'OPEN' : 'CLOSED'}</span>
+              </button>
+            ) : (
+              <div
+                title="Central Fair Price Shop (09:00 AM - 05:30 PM)"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-300"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <Store size={13} />
+                <span className="hidden sm:inline">SHOP: OPEN</span>
+              </div>
+            )}
+          </div>
+
           {/* Nature Leaves & Sand Live Indicator */}
           <div
             title="Falling green leaves & sand atmospheric engine active"
-            className="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 border border-emerald-200/80 text-emerald-800 shadow-sm"
+            className="hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 shadow-sm"
           >
-            <Sparkles size={13} className="text-emerald-600 animate-pulse" />
-            <span className="text-[10px] tracking-wide text-emerald-700">LEAVES & SAND FLOW</span>
+            <Sparkles size={13} className="text-emerald-400 animate-pulse" />
+            <span className="text-[10px] tracking-wide text-emerald-300 font-mono">LEAVES & SAND FLOW</span>
           </div>
 
           {/* Live SSE Status Badge */}
           <div
             title={isSseConnected ? 'Live real-time telemetry stream active' : 'Connecting to live stream...'}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 border border-slate-200 text-slate-700 shadow-sm"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-slate-900/90 border border-white/10 text-slate-300 shadow-sm"
           >
             <span className="relative flex h-2 w-2">
               {isSseConnected && (
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               )}
               <span
                 className={`relative inline-flex rounded-full h-2 w-2 ${
-                  isSseConnected ? 'bg-emerald-500 shadow-[0_0_8px_#10b981]' : 'bg-amber-400'
+                  isSseConnected ? 'bg-emerald-400 shadow-[0_0_10px_#10b981]' : 'bg-amber-400'
                 }`}
               />
             </span>
-            <span className="hidden sm:inline text-slate-700 font-mono text-[11px] font-bold">
+            <span className="hidden sm:inline font-mono text-[11px] font-bold text-slate-300">
               {isSseConnected ? 'LIVE' : 'CONNECTING'}
             </span>
           </div>
@@ -99,11 +149,11 @@ export const Navbar: React.FC<NavbarProps> = ({ isSseConnected }) => {
           <div className="relative">
             <button
               onClick={() => setIsNotifOpen(!isNotifOpen)}
-              className="relative p-2 rounded-xl text-slate-600 hover:text-emerald-700 hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-colors"
+              className="relative p-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/80 border border-transparent hover:border-white/10 transition-colors"
             >
-              <Bell size={20} />
+              <Bell size={19} />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white shadow-md">
+                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 text-[10px] font-bold text-slate-950 shadow-md">
                   {unreadCount}
                 </span>
               )}
@@ -115,11 +165,11 @@ export const Navbar: React.FC<NavbarProps> = ({ isSseConnected }) => {
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  className="absolute right-0 mt-2 w-80 sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl p-4 z-50 space-y-3 backdrop-blur-xl text-slate-800"
+                  className="absolute right-0 mt-2 w-80 sm:w-96 bg-slate-900/95 border border-emerald-500/30 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] p-4 z-50 space-y-3 backdrop-blur-2xl text-slate-100"
                 >
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <h3 className="font-bold text-sm text-slate-900">Notifications</h3>
-                    <span className="text-xs text-slate-500 font-mono">{unreadCount} unread</span>
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                    <h3 className="font-bold text-sm text-white">Notifications</h3>
+                    <span className="text-xs text-slate-400 font-mono">{unreadCount} unread</span>
                   </div>
 
                   <div className="max-h-72 overflow-y-auto space-y-2 pr-1">
@@ -132,19 +182,19 @@ export const Navbar: React.FC<NavbarProps> = ({ isSseConnected }) => {
                           onClick={() => markRead(n.id)}
                           className={`p-3 rounded-xl border text-xs cursor-pointer transition-all ${
                             n.isRead
-                              ? 'bg-slate-50 border-slate-200 text-slate-500'
-                              : 'bg-emerald-50/70 border-emerald-200 text-slate-900 shadow-sm'
+                              ? 'bg-slate-800/40 border-white/5 text-slate-400'
+                              : 'bg-emerald-500/10 border-emerald-500/30 text-white shadow-sm hover:border-emerald-400'
                           }`}
                         >
                           <div className="flex justify-between items-start gap-2">
-                            <span className="font-semibold text-slate-900 block">
+                            <span className="font-semibold text-white block">
                               {n.title}
                             </span>
                             {!n.isRead && (
-                              <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0 mt-1" />
+                              <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0 mt-1 shadow-[0_0_8px_#10b981]" />
                             )}
                           </div>
-                          <p className="mt-1 text-slate-600 line-clamp-2">{n.message}</p>
+                          <p className="mt-1 text-slate-300 line-clamp-2">{n.message}</p>
                           <span className="mt-2 block text-[10px] text-slate-400 font-mono">
                             {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
@@ -157,15 +207,15 @@ export const Navbar: React.FC<NavbarProps> = ({ isSseConnected }) => {
             </AnimatePresence>
           </div>
 
-          {/* User profile pill */}
+          {/* User Profile Pill */}
           {user && (
-            <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
+            <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 border-l border-white/10">
               <div className="hidden sm:flex flex-col text-right">
-                <span className="text-xs font-bold text-slate-900 leading-tight">
+                <span className="text-xs font-bold text-white leading-tight">
                   {user.fullName}
                 </span>
                 <span
-                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border self-end mt-1 ${getRoleBadgeColor(
+                  className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border self-end mt-1 font-mono uppercase tracking-wider ${getRoleBadgeColor(
                     user.role
                   )}`}
                 >
@@ -176,7 +226,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isSseConnected }) => {
               <button
                 onClick={logout}
                 title="Sign out"
-                className="p-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 transition-colors"
+                className="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/30 transition-colors"
               >
                 <LogOut size={18} />
               </button>

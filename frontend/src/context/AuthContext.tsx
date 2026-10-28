@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { User, Role } from '../types';
-import { authApi } from '../services';
+import { authApi, beneficiaryAuthApi } from '../services';
 
 interface AuthContextType {
   user: User | null;
@@ -8,6 +8,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (username: string, password: string) => Promise<void>;
+  beneficiaryLogin: (cardNumber: string, dateOfBirth: string, password?: string) => Promise<void>;
   logout: () => void;
   hasRole: (...roles: Role[]) => boolean;
 }
@@ -56,6 +57,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('user', JSON.stringify(authUser));
   };
 
+  const beneficiaryLogin = async (cardNumber: string, dateOfBirth: string, password?: string) => {
+    const data = await beneficiaryAuthApi.login({ cardNumber, dateOfBirth, password });
+    const authUser: User = {
+      id: data.id,
+      username: data.username,
+      fullName: data.fullName,
+      email: data.email,
+      role: data.role,
+      shopId: data.shopId,
+      shopName: data.shopName,
+      rationCardId: data.rationCardId,
+      cardNumber: data.cardNumber,
+    };
+
+    setToken(data.token);
+    setUser(authUser);
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(authUser));
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -76,6 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!token && !!user,
         isLoading,
         login,
+        beneficiaryLogin,
         logout,
         hasRole,
       }}

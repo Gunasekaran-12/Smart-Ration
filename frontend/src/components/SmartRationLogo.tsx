@@ -29,29 +29,30 @@ export const SmartRationLogo: React.FC<LogoProps> = ({
         transition={{ duration: 0.2 }}
         className="relative flex items-center justify-center flex-shrink-0"
       >
+        <div className="absolute -inset-1 rounded-full bg-emerald-500/20 blur-md pointer-events-none" />
         <img
           src="/smart-ration-logo.png"
-          alt="Smart Ration Shop Management System"
+          alt="SMART RATION SHOP MANAGEMENT SYSTEM WITH REAL-TIME STOCK ANALYTICS"
           style={{ width: dimensions.imgWidth, height: 'auto' }}
-          className="object-contain drop-shadow-md select-none pointer-events-none"
+          className="relative z-10 object-contain drop-shadow-[0_4px_12px_rgba(16,185,129,0.3)] select-none pointer-events-none"
         />
       </motion.div>
 
       {showText && size !== 'hero' && size !== 'xl' && (
         <div className="flex flex-col">
           <div
-            className={`font-black tracking-tight text-slate-900 flex items-center gap-1.5 ${dimensions.text}`}
+            className={`font-black tracking-tight flex items-center gap-1.5 ${dimensions.text}`}
           >
-            <span className="text-slate-900 font-extrabold tracking-tight">SMART</span>
-            <span className="text-[#0e487a] font-black tracking-tight">RATION</span>
-            <span className="text-emerald-700 font-bold text-[10px] uppercase px-1.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200">
+            <span className="text-white font-extrabold tracking-tight">SMART</span>
+            <span className="text-emerald-400 font-black tracking-tight">RATION SHOP</span>
+            <span className="text-emerald-300 font-bold text-[10px] uppercase px-1.5 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-500/40 shadow-sm">
               PDS
             </span>
           </div>
           <span
-            className={`font-semibold tracking-wider uppercase text-slate-500 ${dimensions.sub}`}
+            className={`font-semibold tracking-wider uppercase text-slate-400 ${dimensions.sub}`}
           >
-            Real-Time Inventory Analytics
+            Real-Time Stock Analytics
           </span>
         </div>
       )}

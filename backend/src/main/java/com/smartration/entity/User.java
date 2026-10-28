@@ -48,6 +48,10 @@ public class User {
     @Builder.Default
     private Boolean isActive = true;
 
+    @Column(name = "is_temporary_password", nullable = false)
+    @Builder.Default
+    private Boolean isTemporaryPassword = false;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
-  ShoppingCart,
   AlertCircle,
   CreditCard,
   Users,
+  ShieldCheck,
+  Key,
+  XCircle,
+  CheckCircle2,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../context/AuthContext';
-import { rationCardApi, distributionApi } from '../services';
-import type { RationCard, CardEntitlement, Receipt } from '../types';
+import { rationCardApi, distributionApi, otpApi } from '../services';
+import type { RationCard, CardEntitlement, Receipt, OtpResponse } from '../types';
 import PageContainer from '../components/PageContainer';
 import ReceiptModal from '../components/ReceiptModal';
 import StatusBadge from '../components/StatusBadge';
@@ -26,6 +29,13 @@ export const DistributionPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successReceipt, setSuccessReceipt] = useState<Receipt | null>(null);
+
+  // OTP Verification State
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+  const [otpChallenge, setOtpChallenge] = useState<OtpResponse | null>(null);
+  const [enteredOtp, setEnteredOtp] = useState('');
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
   useEffect(() => {
     if (searchQuery) {
@@ -83,7 +93,8 @@ export const DistributionPage: React.FC = () => {
     return sum;
   };
 
-  const handleDistribute = async () => {
+  // Step 1: Initiate OTP Challenge
+  const handleInitiateDistribution = async () => {
     if (!card) return;
     const items = Object.entries(quantities)
       .map(([commodityId, quantity]) => ({
@@ -96,6 +107,57 @@ export const DistributionPage: React.FC = () => {
       setError('Please specify at least one commodity quantity to issue.');
       return;
     }
+
+    setError(null);
+    setOtpError(null);
+    setEnteredOtp('');
+    setIsSubmitting(true);
+
+    try {
+      // Trigger cryptographic OTP challenge for the cardholder
+      const challenge = await otpApi.generateChallenge(card.id);
+      setOtpChallenge(challenge);
+      setIsOtpModalOpen(true);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to generate beneficiary OTP challenge.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Step 2: Verify OTP and Commit Distribution
+  const handleVerifyOtpAndProceed = async () => {
+    if (!otpChallenge || !enteredOtp.trim()) {
+      setOtpError('Please enter the 6-digit OTP code.');
+      return;
+    }
+
+    setIsVerifyingOtp(true);
+    setOtpError(null);
+
+    try {
+      // Verify OTP challenge with backend
+      await otpApi.verifyOtp(otpChallenge.challengeId, enteredOtp.trim());
+
+      // If valid, close modal and execute final distribution
+      setIsOtpModalOpen(false);
+      await executeFinalDistribution();
+    } catch (err: any) {
+      setOtpError(err.response?.data?.message || 'Invalid or expired OTP challenge.');
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
+  // Step 3: Final Transaction Execution
+  const executeFinalDistribution = async () => {
+    if (!card) return;
+    const items = Object.entries(quantities)
+      .map(([commodityId, quantity]) => ({
+        commodityId: Number(commodityId),
+        quantity,
+      }))
+      .filter((i) => i.quantity > 0);
 
     setIsSubmitting(true);
     setError(null);
@@ -145,7 +207,7 @@ export const DistributionPage: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4"
+        className="bg-slate-900/80 border border-white/10 rounded-2xl p-5 shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur-xl space-y-4"
       >
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
@@ -158,154 +220,157 @@ export const DistributionPage: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="Enter Ration Card Number (e.g. RC-KA-01-987654)"
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 font-mono text-sm placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+              className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800/90 border border-white/10 text-white text-sm placeholder-slate-400 focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30 transition-all font-mono font-bold"
             />
           </div>
-
           <button
             onClick={handleSearch}
-            disabled={isLoading}
-            className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-md shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+            disabled={isLoading || !searchQuery.trim()}
+            className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
           >
-            {isLoading ? <span className="animate-spin font-mono">⌛</span> : <Search size={16} />}
-            Verify Card
+            {isLoading ? (
+              <span className="w-4 h-4 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin" />
+            ) : (
+              <Search size={18} />
+            )}
+            <span>Search Card</span>
           </button>
         </div>
 
-        {/* Quick Demo Card Selectors */}
+        {/* Quick Fill Tags for Demo */}
         <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-          <span className="text-slate-500 font-semibold font-mono text-[11px]">Quick Fictional Cards:</span>
-          {['RC-KA-01-987654', 'RC-KA-01-987655', 'RC-KA-01-987656', 'RC-KA-01-987657'].map((num) => (
+          <span className="text-slate-400 font-mono text-[11px]">Quick Demo Cards:</span>
+          {['RC-KA-01-987654', 'RC-KA-01-445566', 'RC-KA-01-112233'].map((demo) => (
             <button
-              key={num}
-              type="button"
+              key={demo}
               onClick={() => {
-                setSearchQuery(num);
+                setSearchQuery(demo);
                 setTimeout(handleSearch, 50);
               }}
-              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 font-mono text-[11px] text-slate-700 transition-colors"
+              className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-white/10 text-[11px] font-mono transition-colors"
             >
-              {num}
+              {demo}
             </button>
           ))}
         </div>
       </motion.div>
 
-      {/* Error message */}
+      {/* Error Alert */}
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2 font-medium">
-          <AlertCircle size={18} className="flex-shrink-0 text-rose-600" />
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-200 text-xs flex items-center gap-3 shadow-lg"
+        >
+          <AlertCircle size={18} className="text-rose-400 flex-shrink-0" />
           <span>{error}</span>
-        </div>
+        </motion.div>
       )}
 
-      {/* Verified Card Information Card */}
+      {/* Card Details Card */}
       {card && (
         <motion.div
-          initial={{ opacity: 0, y: 14 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4"
+          className="bg-slate-900/80 border border-white/10 rounded-2xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur-xl space-y-4"
         >
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-white/10 pb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center font-bold shadow-sm">
+              <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 text-emerald-400">
                 <CreditCard size={24} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-extrabold text-slate-900">
-                    {card.headOfFamily}
+                  <h3 className="text-lg font-black text-white font-mono tracking-wide">
+                    {card.cardNumber}
                   </h3>
                   <StatusBadge status={card.cardCategory} />
-                  <StatusBadge status={card.isActive ? 'ACTIVE' : 'INACTIVE'} />
                 </div>
-                <p className="text-xs font-mono text-slate-500 mt-0.5">
-                  Card No: <strong className="text-slate-900">{card.cardNumber}</strong> &bull; Assigned Shop: {card.shopName} ({card.shopNumber})
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Head of Family: <span className="text-slate-200 font-bold">{card.headOfFamily}</span> &bull; FPS: {card.shopName || card.shopNumber}
                 </p>
               </div>
             </div>
 
-            <div className="text-right sm:border-l sm:border-slate-200 sm:pl-4">
-              <span className="text-[11px] text-slate-400 block font-mono">Family Members</span>
-              <span className="text-sm font-bold text-slate-900 flex items-center gap-1 font-mono">
-                <Users size={14} className="text-emerald-600" />
-                {card.familyMemberCount} Persons Enrolled
-              </span>
+            <div className="flex items-center gap-4 text-xs font-mono text-slate-300 bg-slate-800/80 px-4 py-2 rounded-xl border border-white/5">
+              <div className="flex items-center gap-1.5">
+                <Users size={16} className="text-emerald-400" />
+                <span>Members: <strong>{card.familyMemberCount}</strong></span>
+              </div>
+              <div className="border-l border-white/10 pl-3">
+                Status: <span className="text-emerald-400 font-bold">{card.isActive ? 'ACTIVE' : 'INACTIVE'}</span>
+              </div>
             </div>
           </div>
 
-          {/* Entitlements & Distribution Entry Table */}
-          <div className="overflow-x-auto">
+          {/* Entitlements & Allocation Table */}
+          <div className="overflow-x-auto rounded-xl border border-white/5">
             <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider border-b border-slate-200 font-mono text-[11px]">
+              <thead className="bg-slate-800/90 text-slate-300 font-mono text-[11px] uppercase tracking-wider border-b border-white/10">
+                <tr>
                   <th className="py-3 px-4">Commodity</th>
-                  <th className="py-3 px-4 text-right">Subsidized Rate</th>
-                  <th className="py-3 px-4 text-right">Monthly Quota</th>
-                  <th className="py-3 px-4 text-right">Already Issued</th>
+                  <th className="py-3 px-4 text-right">Quota Entitled</th>
+                  <th className="py-3 px-4 text-right">Distributed (MTD)</th>
                   <th className="py-3 px-4 text-right">Remaining Quota</th>
                   <th className="py-3 px-4 text-right">Shop Stock</th>
-                  <th className="py-3 px-4 text-right w-44">Issue Quantity</th>
-                  <th className="py-3 px-4 text-right">Subtotal</th>
+                  <th className="py-3 px-4 text-right">Unit Price</th>
+                  <th className="py-3 px-4 text-center">Issue Quantity</th>
+                  <th className="py-3 px-4 text-right">Payable</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-mono">
+              <tbody className="divide-y divide-white/5 text-slate-200 font-mono">
                 {entitlements.map((e) => {
+                  const issueQty = quantities[e.commodityId] || 0;
+                  const itemTotal = issueQty * Number(e.unitPrice);
                   const maxAllowed = Math.min(Number(e.remainingQuantity), Number(e.availableShopStock));
-                  const qty = quantities[e.commodityId] || 0;
-                  const itemTotal = qty * Number(e.unitPrice);
 
                   return (
-                    <tr key={e.commodityId} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-3.5 px-4 font-bold text-slate-900">
-                        {e.commodityName}
-                        <span className="block text-[10px] text-slate-400 font-normal">
-                          {e.commodityCode}
+                    <tr key={e.commodityId} className="hover:bg-slate-800/40 transition-colors">
+                      <td className="py-3.5 px-4 font-bold text-white font-sans flex items-center gap-2">
+                        <span>{e.commodityName}</span>
+                        <span className="text-[10px] text-slate-400 font-mono font-normal">
+                          ({e.commodityCode})
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-right font-medium text-slate-700">
-                        ₹{Number(e.unitPrice).toFixed(2)} / {e.measurementUnit}
-                      </td>
-                      <td className="py-3.5 px-4 text-right font-semibold text-slate-900">
-                        {Number(e.totalEntitledQuantity).toFixed(1)} {e.measurementUnit}
+                      <td className="py-3.5 px-4 text-right">
+                        {e.totalEntitledQuantity} {e.measurementUnit}
                       </td>
                       <td className="py-3.5 px-4 text-right text-slate-400">
-                        {Number(e.distributedQuantity).toFixed(1)} {e.measurementUnit}
+                        {e.distributedQuantity} {e.measurementUnit}
                       </td>
-                      <td className="py-3.5 px-4 text-right font-bold text-emerald-700">
-                        {Number(e.remainingQuantity).toFixed(1)} {e.measurementUnit}
+                      <td className="py-3.5 px-4 text-right font-bold text-emerald-400">
+                        {e.remainingQuantity} {e.measurementUnit}
                       </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <span
-                          className={`font-semibold ${
-                            Number(e.availableShopStock) <= 0
-                              ? 'text-rose-600 font-bold'
-                              : 'text-slate-800'
-                          }`}
-                        >
-                          {Number(e.availableShopStock).toFixed(1)} {e.measurementUnit}
-                        </span>
+                      <td className="py-3.5 px-4 text-right text-slate-300">
+                        {e.availableShopStock} {e.measurementUnit}
                       </td>
                       <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-1">
+                        ₹{Number(e.unitPrice).toFixed(2)}
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        <div className="inline-flex items-center gap-2">
                           <input
                             type="number"
                             min="0"
                             max={maxAllowed}
                             step="0.5"
-                            value={qty}
-                            disabled={maxAllowed <= 0}
+                            value={quantities[e.commodityId] ?? 0}
+                            disabled={!e.isEligibleForDistribution || maxAllowed <= 0}
                             onChange={(ev) =>
-                              handleQuantityChange(e.commodityId, parseFloat(ev.target.value) || 0, maxAllowed)
+                              handleQuantityChange(
+                                e.commodityId,
+                                parseFloat(ev.target.value) || 0,
+                                maxAllowed
+                              )
                             }
-                            className="w-24 px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-right font-bold text-slate-900 focus:outline-none focus:border-emerald-500 disabled:opacity-40"
+                            className="w-24 px-2.5 py-1.5 rounded-lg border border-white/10 bg-slate-800 text-right font-bold text-white focus:outline-none focus:border-emerald-400 disabled:opacity-40"
                           />
-                          <span className="text-[11px] text-slate-400 font-medium">
+                          <span className="text-[11px] text-slate-400 font-medium font-sans">
                             {e.measurementUnit}
                           </span>
                         </div>
                       </td>
-                      <td className="py-3.5 px-4 text-right font-extrabold text-slate-900">
+                      <td className="py-3.5 px-4 text-right font-extrabold text-white">
                         ₹{itemTotal.toFixed(2)}
                       </td>
                     </tr>
@@ -313,11 +378,11 @@ export const DistributionPage: React.FC = () => {
                 })}
               </tbody>
               <tfoot>
-                <tr className="bg-slate-50 font-bold border-t-2 border-slate-200">
-                  <td colSpan={7} className="py-3.5 px-4 text-right text-slate-700 font-mono">
+                <tr className="bg-slate-800/80 font-bold border-t-2 border-white/10">
+                  <td colSpan={7} className="py-3.5 px-4 text-right text-slate-300 font-mono">
                     Grand Total Subsidized Payable:
                   </td>
-                  <td className="py-3.5 px-4 text-right text-base text-emerald-700 font-black font-mono">
+                  <td className="py-3.5 px-4 text-right text-base text-emerald-400 font-black font-mono">
                     ₹{calculateTotal().toFixed(2)}
                   </td>
                 </tr>
@@ -326,39 +391,144 @@ export const DistributionPage: React.FC = () => {
           </div>
 
           {/* Notes and Authorization Confirmation */}
-          <div className="pt-4 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="pt-4 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="w-full md:w-1/2">
               <input
                 type="text"
                 value={receiptNotes}
                 onChange={(e) => setReceiptNotes(e.target.value)}
                 placeholder="Optional receipt notes (e.g., Authorized representative collection)..."
-                className="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white"
+                className="w-full px-3 py-2.5 rounded-xl border border-white/10 bg-slate-800/90 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-400"
               />
             </div>
 
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={handleDistribute}
+              onClick={handleInitiateDistribution}
               disabled={isSubmitting || calculateTotal() <= 0}
-              className="w-full md:w-auto px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm rounded-xl shadow-md shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+              className="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-sm rounded-xl shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
             >
               {isSubmitting ? (
                 <>
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Processing Transaction...
+                  <span className="w-4 h-4 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin" />
+                  Initiating OTP Challenge...
                 </>
               ) : (
                 <>
-                  <ShoppingCart size={18} />
-                  Authorize & Complete Distribution (₹{calculateTotal().toFixed(2)})
+                  <ShieldCheck size={18} />
+                  Authorize Distribution via OTP (₹{calculateTotal().toFixed(2)})
                 </>
               )}
             </motion.button>
           </div>
         </motion.div>
       )}
+
+      {/* Cryptographic Beneficiary OTP Verification Modal */}
+      <AnimatePresence>
+        {isOtpModalOpen && otpChallenge && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-md bg-slate-900 border border-emerald-500/40 rounded-3xl p-6 shadow-2xl space-y-4 text-slate-100 relative overflow-hidden"
+            >
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-white">Beneficiary OTP Challenge</h3>
+                    <p className="text-[11px] text-slate-400">Cryptographic Dispatched Verification</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsOtpModalOpen(false)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-white"
+                >
+                  <XCircle size={20} />
+                </button>
+              </div>
+
+              {otpError && (
+                <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-200 text-xs flex items-center gap-2">
+                  <AlertCircle size={15} className="text-rose-400 flex-shrink-0" />
+                  <span>{otpError}</span>
+                </div>
+              )}
+
+              {/* Demo Mode OTP Helper */}
+              {otpChallenge.simulatedOtpForDemo && (
+                <div className="p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-between text-xs font-mono">
+                  <div>
+                    <span className="text-[10px] uppercase text-amber-300 font-bold block">
+                      Demo Test Mode OTP
+                    </span>
+                    <span className="text-lg font-black text-amber-200 tracking-wider">
+                      {otpChallenge.simulatedOtpForDemo}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setEnteredOtp(otpChallenge.simulatedOtpForDemo || '')}
+                    className="px-3 py-1 rounded-lg bg-amber-400/20 hover:bg-amber-400/30 text-amber-300 text-[11px] font-bold border border-amber-400/30 transition-all cursor-pointer"
+                  >
+                    Quick Paste
+                  </button>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[11px] font-mono text-slate-300 uppercase font-bold mb-1.5">
+                  Enter 6-Digit Beneficiary OTP
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                    <Key size={16} />
+                  </span>
+                  <input
+                    type="text"
+                    maxLength={6}
+                    value={enteredOtp}
+                    onChange={(e) => setEnteredOtp(e.target.value)}
+                    placeholder="Enter 6-digit code"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800 border border-white/10 text-white font-mono text-center text-lg tracking-[0.3em] font-bold focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400/30"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-400 mt-1 font-mono">
+                  Challenge ID: {otpChallenge.challengeId.slice(0, 16)}... &bull; 3 attempts allowed
+                </p>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsOtpModalOpen(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleVerifyOtpAndProceed}
+                  disabled={isVerifyingOtp || enteredOtp.length < 4}
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+                >
+                  {isVerifyingOtp ? (
+                    <span className="w-4 h-4 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin" />
+                  ) : (
+                    <CheckCircle2 size={16} />
+                  )}
+                  <span>Verify & Issue Ration</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Printable Receipt Modal */}
       <ReceiptModal receipt={successReceipt} onClose={() => setSuccessReceipt(null)} />
