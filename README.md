@@ -1,292 +1,341 @@
-<p align="center">
-  <img src="frontend/public/smart-ration-logo.png" alt="Smart Ration Shop Management System Logo" width="220" />
-</p>
+<div align="center">
 
-<h1 align="center">🌾 Smart Ration Shop Management System</h1>
-<h3 align="center">Real-Time Inventory Analytics & Public Distribution System (PDS) Portal</h3>
+  <img src="frontend/public/smart-ration-logo.png" alt="Smart Ration Shop Management System Emblem" width="190" style="filter: drop-shadow(0px 10px 20px rgba(14, 72, 122, 0.25));" />
 
-<p align="center">
-  <a href="https://spring.io/projects/spring-boot"><img src="https://img.shields.io/badge/Spring%20Boot-3.3.4-brightgreen.svg" alt="Spring Boot 3.3.4" /></a>
-  <a href="https://www.oracle.com/java/"><img src="https://img.shields.io/badge/Java-21%20LTS-orange.svg" alt="Java 21" /></a>
-  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19-blue.svg" alt="React 19" /></a>
-  <a href="https://vitejs.dev/"><img src="https://img.shields.io/badge/Vite-8.3-purple.svg" alt="Vite" /></a>
-  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind%20CSS-3.4-38B2AC.svg" alt="Tailwind CSS" /></a>
-  <a href="https://www.framer.com/motion/"><img src="https://img.shields.io/badge/Framer%20Motion-12-ff69b4.svg" alt="Framer Motion" /></a>
-  <a href="https://www.mysql.com/"><img src="https://img.shields.io/badge/MySQL-8.0-blue.svg" alt="MySQL 8" /></a>
-  <a href="https://flywaydb.org/"><img src="https://img.shields.io/badge/Flyway-Migrations-red.svg" alt="Flyway" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License MIT" /></a>
-</p>
+  # 🌾 Smart Ration Shop Management System
+  ### 📊 With Real-Time Stock Analytics & Entitlement Tracking
 
----
+  **An enterprise-grade, full-stack digital Public Distribution System (PDS) portal designed to modernize Fair Price Shops (FPS) through verifiable stock ledgers, atomic point-of-sale distributions, statutory entitlement calculations, and live real-time inventory streaming.**
 
-## 📖 Project Overview & Description
+  <br/>
 
-**Smart Ration Shop Management System** is a production-grade, enterprise full-stack web application designed to modernize the **Public Distribution System (PDS)** and **Fair Price Shops (FPS)** under the **National Food Security Act (NFSA)**.
+  [![Java 21](https://img.shields.io/badge/Java-21%20LTS-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
+  [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.3.4-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)](https://spring.io/projects/spring-boot)
+  [![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+  [![Vite](https://img.shields.io/badge/Vite-8.3-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+  [![Framer Motion](https://img.shields.io/badge/Framer_Motion-12.4-EA4C89?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
+  [![MySQL 8](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
+  [![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-In conventional manual ration shops, paper registers and disconnected weighing counters frequently suffer from diversion of subsidized foodgrains, phantom beneficiaries, ghost stock records, and lack of real-time supply chain transparency.
+  <br/>
 
-This system replaces obsolete physical ledgers with a transparent, digitized, and verifiable platform featuring:
-- **Statutory Entitlement Engine**: Computes dynamic monthly grain quotas (Rice, Wheat, Sugar, Kerosene, Dal) based on ration card classifications (**AAY - Antyodaya Anna Yojana**, **PHH/BPL - Priority Household**, and **NPHH/APL - Non-Priority Household**) and family unit sizes.
-- **Atomic Point-of-Sale (POS) Distribution**: Prevents double-dipping and over-allocation with atomic database transactions, idempotency key guarantees, and printable tamper-evident authorization receipts.
-- **Traceable Stock Ledger**: Full FIFO (First-In-First-Out) batch tracking from Food Corporation of India (FCI) warehouse inward consignments down to individual citizen distributions.
-- **Real-Time Analytics & Live Streaming**: Low-stock alerts, consumption velocity indicators, stockout projections, and live Server-Sent Events (SSE) push notifications.
-- **Citizen Grievance Redressal**: Built-in grievance ticketing module for citizens to report stock shortages or service discrepancies.
-- **Immutable Security Audit Log**: Cryptographically recorded operational audit trails tracking all administrative and inventory adjustments.
+  [Explore Features](#-core-features--capabilities) •
+  [Architecture](#-system-architecture) •
+  [Quick Start (60s)](#-quick-start-guide) •
+  [Demo Accounts](#-live-demo-accounts) •
+  [API Reference](#-rest-api-documentation) •
+  [Testing](#-automated-testing--code-quality)
+
+</div>
 
 ---
 
-## 🎨 Unique UI/UX & Visual Innovations
+## 📌 Executive Summary
 
-- **3D Opening Book Login Animation**: 
-  The login screen presents a hardcover Public Distribution Ledger register with the official gold-embossed seal. Upon mounting, the book smoothly hinges open in 3D perspective (`perspective: 2200px`), fanning open intermediate parchment leaves to reveal an open two-page registry spread (Official Registry Folio on the left and Digital Counter Sign-In Terminal on the right), with an interactive **"Replay 3D Book Opening"** action.
-- **Falling Green Leaves & Golden Sand Particles Breeze**:
-  A lightweight particle engine running across all views that gently drifts organic green tea/wheat leaves and warm golden sand dust across the screen, evoking a natural agricultural harvest atmosphere.
-- **Pristine White Theme**:
-  High-contrast, clean government design system using crisp white surfaces (`#ffffff`, `#f8fafc`), deep navy accents (`#0e487a`), rich emerald green highlights (`#059669`), and warm amber tones (`#f59e0b`).
-- **5-Second 3D Floating Crest Splash Intro**:
-  A dedicated portal entrance (`/`) featuring the official Smart Ration crest floating in 3D with ambient lighting and an automated 5-second progress countdown transitioning to `/login`.
+India's **Public Distribution System (PDS)** is the world's largest food security network, serving over 800 million citizens under the **National Food Security Act (NFSA)**. However, traditional manual Fair Price Shops (FPS) frequently face systemic vulnerabilities:
+
+| Challenge in Traditional PDS | How Smart Ration Solves It |
+| :--- | :--- |
+| ❌ **Grain Diversion & Black Marketing** | ✅ **Cryptographic FIFO Batch Tracking**: Every kilogram inwarded from FCI warehouses is tagged to a batch and deducted atomically on citizen biometric/POS swipe. |
+| ❌ **Ghost / Bogus Beneficiary Cards** | ✅ **Algorithmic Card Quotas**: Real-time family member verification with category-based caps (AAY, BPL/PHH, APL/NPHH). |
+| ❌ **Over-Allocation & Double Dipping** | ✅ **Idempotent Atomic Transactions**: Database-level locks prevent a card from collecting rations twice within the same calendar month across any counter. |
+| ❌ **Stockout Blindspots** | ✅ **Real-Time Inventory Velocity Analytics**: Recharts predictive analytics calculating days-until-stockout and low-stock alerts. |
+| ❌ **Citizen Grievance Gaps** | ✅ **Direct Grievance Portal**: Beneficiaries file complaints online, generating tracked tickets with resolution SLAs. |
 
 ---
 
-## 🛠️ Technology Stack
+## 🎨 Distinctive Visual Experience & UI Innovations
 
-### **Frontend**
-| Technology | Version | Purpose |
-| :--- | :--- | :--- |
-| **React** | `19.0.0` | Core UI library for component-based Single Page Application (SPA) |
-| **TypeScript** | `5.6.3` | Strict type safety, interfaces, and build-time validation |
-| **Vite** | `8.3.5` | Lightning-fast build tooling and Hot Module Replacement (HMR) |
-| **Tailwind CSS** | `3.4.17` | Utility-first responsive CSS styling with custom government color tokens |
-| **Framer Motion** | `12.40.0` | 3D book transforms, physics-based page curls, and particle effects |
-| **Recharts** | `2.15.1` | Interactive analytics charts (Volume trends, commodity donuts, velocity) |
-| **Axios** | `1.7.9` | Promise-based HTTP client with JWT interceptors |
-| **Lucide React** | `0.475.0` | Modern, accessible iconography |
-| **React Router** | `6.29.0` | Client-side routing with role-based route guards |
+<div align="center">
+  <img src="frontend/public/smart-ration-logo.png" width="90" alt="Emblem"/>
+</div>
 
-### **Backend**
-| Technology | Version | Purpose |
-| :--- | :--- | :--- |
-| **Java** | `21 LTS` | Modern LTS Java runtime environment |
-| **Spring Boot** | `3.3.4` | Enterprise application framework |
-| **Spring Web MVC** | `3.3.4` | RESTful API endpoints and Server-Sent Events (SSE) streaming |
-| **Spring Security** | `3.3.4` | Stateless JWT authentication and Role-Based Access Control (RBAC) |
-| **Spring Data JPA** | `3.3.4` | Hibernate ORM repository abstractions |
-| **Flyway** | `10.10.0` | Version-controlled database schema migrations and seed scripts |
-| **JJWT (io.jsonwebtoken)**| `0.12.6` | HMAC-SHA384 encrypted JSON Web Token creation & verification |
-| **Lombok** | `1.18.34`| Boilerplate reduction for entity models and DTOs |
-| **Maven** | `3.8+` | Dependency management and build lifecycle |
+### 📖 1. 3D Opening Book Login Animation
+The authentication interface reimagines the physical, time-honored Indian Ration Ledger register into an interactive **3D Opening Book** (`perspective: 2200px`):
+- **Closed State**: Displays a royal navy & forest emerald hardcover register with gold-embossed foil borders, the official Smart Ration crest emblem, and government security seals.
+- **Dynamic 3D Unfolding**: The front cover rotates open (`rotateY: 180° -> 0°`) around its left spine hinge, accompanied by fanning parchment pages, settling into a grand two-page open ledger spread.
+- **Left Folio Page**: Official PDS Food Security registry badges, terminal details, and 1-click Quick-Select Demo Accounts.
+- **Right Folio Page**: Secure POS counter authentication terminal with a golden ribbon bookmark.
+- **Interactive Replay**: A `"Replay 3D Book Opening"` button allows instant re-triggering of the 3D physics animation at any time.
 
-### **Database & Persistence**
-| Technology | Version | Purpose |
-| :--- | :--- | :--- |
-| **MySQL** | `8.0+` | Primary production relational database (14 normalized tables) |
-| **H2 Database** | `2.2+` | Embedded zero-configuration in-memory database for rapid local testing |
+### 🍃 2. Agricultural Harvest Breeze (Falling Leaves & Golden Sand)
+A continuous, lightweight canvas particle physics engine runs across all views, drifting organic green tea leaves and radiant golden sand particles across the screen to reflect an authentic harvest atmosphere.
+
+### 🏛️ 3. Pristine White Theme
+A high-contrast, clean government design system built on crisp white surfaces (`#ffffff`, `#f8fafc`), deep navy accents (`#0e487a`), rich emerald green highlights (`#059669`), and warm amber tones (`#f59e0b`).
+
+### ⏳ 4. 5-Second 3D Floating Crest Splash Intro
+Visiting the root route (`/`) triggers a 3D levitating presentation of the official crest emblem with glowing ambient backlights and a smooth 5-second progress countdown automatically transitioning to `/login`.
+
+---
+
+## ✨ Core Features & Capabilities
+
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                    SMART RATION SHOP MANAGEMENT PLATFORM                     │
+├──────────────────────┬───────────────────────┬───────────────────────────────┤
+│ 🛒 POINT-OF-SALE     │ 📦 INVENTORY LEDGER   │ 📊 REAL-TIME ANALYTICS        │
+│ • POS Card Search    │ • Inward FCI Batches  │ • Live Stockout Projections   │
+│ • Quota Calculation  │ • FIFO Depletion      │ • Monthly Volume Trends       │
+│ • Atomic Issuance    │ • Damage Adjustments  │ • Commodity Distribution Pie  │
+│ • Thermal Receipts   │ • Physical Audit Diff │ • SSE Live Push Broadcasting  │
+├──────────────────────┼───────────────────────┼───────────────────────────────┤
+│ 🪪 BENEFICIARY CARDS │ ⚖️ STATUTORY RULES    │ 🛡️ AUDIT & GRIEVANCE         │
+│ • AAY / BPL / APL    │ • Per-Member Formula  │ • Immutable Security Logs     │
+│ • Family Unit Sync   │ • Fixed Monthly Caps  │ • Ticket Status Tracking      │
+│ • Aadhaar Masking    │ • Subsidized Pricing  │ • Tamper-Evident CSV Exports  │
+└──────────────────────┴───────────────────────┴───────────────────────────────┘
+```
+
+- **Dynamic Monthly Entitlement Engine**:
+  - **AAY (Antyodaya Anna Yojana)**: Fixed 35 kg foodgrains (Rice + Wheat) per family regardless of family size.
+  - **PHH / BPL (Priority Household)**: 5 kg per member per month at statutory subsidized rates.
+  - **NPHH / APL (Non-Priority Household)**: Discretionary supplemental quotas based on state buffer stocks.
+- **Point-of-Sale (POS) Counter Module**:
+  - Instant card lookup by Number, Aadhaar Hash, or Mobile.
+  - Calculates remaining monthly entitlement after subtracting earlier partial collections.
+  - Prints professional thermal receipts featuring transaction reference hashes, shop stamps, and breakdown of distributed items.
+- **FIFO Batch Stock Inward & Depletion**:
+  - Inward consignments recorded with Supplier, Batch Number, Manufacturing/Expiry date, and Quantity.
+  - POS distributions automatically deplete the oldest active batches first (FIFO), ensuring zero expired grain distributions.
+- **Live Server-Sent Events (SSE)**:
+  - Real-time event broadcasting on `/api/analytics/stream` updating connected dashboards instantly whenever transactions occur.
 
 ---
 
 ## 🏛️ System Architecture
 
 ```mermaid
-graph TD
-    UserClient["React 19 + TypeScript + Vite SPA\n(Tailwind CSS + Framer Motion)"]
-    SSE["SSE Live Stream\n(/api/analytics/stream)"]
-    REST["REST API Endpoints\n(JWT Bearer Auth)"]
-    
-    subgraph SpringBoot ["Spring Boot 3.3.4 Application Backend"]
-        SecurityFilter["JwtAuthenticationFilter & SecurityConfig"]
-        Controllers["Controllers: Auth, Analytics, RationCard,\nDistribution, Stock, Reports, Complaints, Audit"]
-        Services["Business Services: Entitlement Engine, Stock Ledger,\nAtomic Distribution, FIFO Batch Allocation"]
-        Repos["Spring Data JPA Repositories"]
-    end
-    
-    subgraph Storage ["Database Persistence"]
-        Flyway["Flyway Migrations (V1, V2)"]
-        MySQL[("MySQL 8 / H2 Database\n(14 Normalized Tables)")]
+graph TB
+    subgraph Frontend ["Frontend Client (React 19 + TypeScript + Vite)"]
+        UI["Tailwind CSS + Pristine White Theme"]
+        Motion["Framer Motion (3D Book & Particles)"]
+        Recharts["Recharts Analytics Visualizer"]
+        Axios["Axios Client (JWT Interceptor)"]
     end
 
-    UserClient -->|Axios REST| REST
-    REST --> SecurityFilter --> Controllers --> Services --> Repos --> MySQL
-    Services -->|Broadcast Stock/Txn Events| SSE -->|Live Push| UserClient
-    Flyway -->|Auto Schema & Demo Seed| MySQL
+    subgraph API_Gateway ["Security & Transport Layer"]
+        CORS["CORS Configuration"]
+        JWT["JwtAuthenticationFilter (HMAC-SHA384)"]
+        SSE_Hub["SSE Event Emitter (/api/analytics/stream)"]
+    end
+
+    subgraph Backend_Services ["Spring Boot 3.3.4 Enterprise Core"]
+        AuthSvc["Auth & RBAC Service"]
+        EntitleSvc["Statutory Entitlement Engine"]
+        DistSvc["Atomic POS Distribution Service"]
+        StockSvc["FIFO Stock Batch Ledger"]
+        AuditSvc["Immutable Audit Logger"]
+        ReportSvc["Reconciliation & CSV Exporter"]
+    end
+
+    subgraph Data_Storage ["Database Persistence (Flyway Managed)"]
+        Flyway["Flyway Migrations (V1, V2)"]
+        DB[("MySQL 8.0 / H2 In-Memory\n14 Normalized Tables")]
+    end
+
+    Frontend -->|HTTPS REST| API_Gateway
+    API_Gateway --> Backend_Services
+    Backend_Services --> Data_Storage
+    Backend_Services -.->|Live Event Push| SSE_Hub -.->|Real-Time Updates| Frontend
 ```
 
 ---
 
-## 👥 User Roles & Demo Accounts
+## 👥 Live Demo Accounts
 
-The application implements strict Role-Based Access Control (RBAC) across both the Spring Security filter chain and React Router client guards.
+The system includes pre-configured demo personas with dedicated dashboards and permissions. On the login screen, click any **Quick-Select Demo Account** card to fill credentials in 1 click:
 
-| Role | Username | Password | Purpose & Permissions |
-| :--- | :--- | :--- | :--- |
-| **Super Admin** | `admin` | `admin123` | Department-wide oversight, shop registration, user management, entitlement rule configuration, global stock & audit monitoring. |
-| **Shop Operator** | `operator` | `operator123` | Operate Fair Price Shop (FPS-1001), inward stock from FCI, POS card validation, atomic commodity distribution, printable receipts, stock adjustments. |
-| **Beneficiary** | `beneficiary` | `beneficiary123` | Ration cardholder (`RC-KA-01-987654`), view live monthly entitlement, remaining balance, check shop commodity availability, download past receipts, submit complaints. |
-| **Auditor** | `auditor` | `auditor123` | Read-only inspection of stock ledger, physical vs book stock reconciliation, discrepancy alerts, export tamper-evident audit logs to CSV. |
-
-> **Tip**: On the login page, you can click on any of the **Quick-Select Demo Account** cards to instantly populate the credentials.
+| Role | Username | Password | Persona & Scope | Key Workflows to Test |
+| :--- | :--- | :--- | :--- | :--- |
+| **Super Admin** | `admin` | `admin123` | Directorate General of Food & Supplies | Add Fair Price Shops, configure commodity entitlement rules, monitor state-wide stock & audit logs. |
+| **Shop Operator** | `operator` | `operator123` | FPS-1001 Counter Manager | Inward stock batches from FCI, conduct POS quota distributions, print transaction receipts, record inventory adjustments. |
+| **Beneficiary** | `beneficiary` | `beneficiary123` | Ration Cardholder (`RC-KA-01-987654`) | Check real-time family grain balance, verify shop grain availability, download past distribution receipts, lodge grievances. |
+| **Auditor** | `auditor` | `auditor123` | Quality & Vigilance Inspector | Run stock reconciliation (Physical vs Book Stock), inspect anomaly flags, export tamper-evident audit logs to CSV. |
 
 ---
 
-## 🚀 How to Run the Project
+## 🚀 Quick Start Guide
 
 ### Prerequisites
-Before running the application, make sure you have the following installed on your system:
 - **Java Development Kit (JDK) 21 LTS** (`java -version`)
 - **Apache Maven 3.8+** (`mvn -v`)
 - **Node.js 20+** and **npm** (`node -v`, `npm -v`)
-- *(Optional)* **MySQL 8.0+** (if running with MySQL instead of H2)
-- *(Optional)* **Docker & Docker Compose** (for single-command containerized launch)
+- *(Optional)* **Docker & Docker Compose**
 
 ---
 
-### Method 1: Running Locally (Recommended for Development)
+### Option A: 60-Second Instant Run (Zero Configuration with H2)
 
-#### 1. Start the Backend (Spring Boot)
+The fastest way to test the complete application without configuring MySQL:
 
-1. Open a terminal and navigate to the `backend` folder:
-   ```bash
-   cd SmartRation/backend
-   ```
+#### 1. Launch the Backend
+```bash
+cd SmartRation/backend
+java -jar target/smart-ration-backend-1.0.0.jar --spring.profiles.active=h2
+```
+*Or compile directly with Maven:*
+```bash
+mvn spring-boot:run -Dspring-boot.run.profiles=h2
+```
+> The Spring Boot backend starts at `http://localhost:8080` with pre-seeded demo data.
 
-2. Choose one of the two database options:
-
-   - **Option A: Instant Zero-Config Launch with H2 (Fastest, no MySQL setup required)**:
-     ```bash
-     java -jar target/smart-ration-backend-1.0.0.jar --spring.profiles.active=h2
-     ```
-     *Or if compiling from source with Maven:*
-     ```bash
-     mvn spring-boot:run -Dspring-boot.run.profiles=h2
-     ```
-
-   - **Option B: Running with MySQL 8**:
-     Ensure your MySQL service is running, create the database:
-     ```sql
-     CREATE DATABASE smart_ration_db;
-     ```
-     Set your database credentials in `backend/src/main/resources/application.yml` (or via environment variables `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD`), then run:
-     ```bash
-     mvn spring-boot:run
-     ```
-
-3. The backend server will start at:
-   ```text
-   http://localhost:8080
-   ```
-   Flyway will automatically execute migrations `V1__create_tables.sql` and `V2__seed_demo_data.sql`, populating the database with demo accounts, shops, cards, and inventory batches.
+#### 2. Launch the Frontend
+In a separate terminal:
+```bash
+cd SmartRation/frontend
+npm install --legacy-peer-deps
+npm run dev
+```
+> The Vite development server starts at `http://localhost:5173`. Open your browser to experience the 3D book login!
 
 ---
 
-#### 2. Start the Frontend (React + Vite)
+### Option B: Production Setup with MySQL 8.0
 
-1. Open a second terminal and navigate to the `frontend` folder:
-   ```bash
-   cd SmartRation/frontend
+1. **Create the MySQL Database**:
+   ```sql
+   CREATE DATABASE smart_ration_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
 
-2. Install all required dependencies:
+2. **Configure Database Credentials**:
+   Edit `backend/src/main/resources/application.yml` or set environment variables:
    ```bash
-   npm install --legacy-peer-deps
+   export SPRING_DATASOURCE_URL="jdbc:mysql://localhost:3306/smart_ration_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
+   export SPRING_DATASOURCE_USERNAME="root"
+   export SPRING_DATASOURCE_PASSWORD="your_password"
    ```
 
-3. Launch the Vite development server:
+3. **Start the Spring Boot Backend**:
    ```bash
+   cd backend
+   mvn spring-boot:run
+   ```
+   *Flyway will automatically execute migrations `V1__create_tables.sql` and `V2__seed_demo_data.sql` to initialize all 14 tables and demo data.*
+
+4. **Start the Frontend**:
+   ```bash
+   cd ../frontend
    npm run dev
    ```
 
-4. The frontend will be available at:
-   ```text
-   http://localhost:5173
-   ```
+---
 
-5. Open your browser and navigate to `http://localhost:5173`. You will see the **3D Floating Crest Splash Screen** for 5 seconds, followed by the **3D Opening Book Login Screen**.
+### Option C: Single-Command Docker Compose
+
+Run the entire application ecosystem with zero host dependencies:
+
+```bash
+# From the project root:
+docker-compose up --build -d
+```
+
+Containers launched:
+- **Frontend SPA**: `http://localhost:5173`
+- **Backend REST API**: `http://localhost:8080`
+- **MySQL 8.0 Database**: `localhost:3306`
+
+To shut down:
+```bash
+docker-compose down -v
+```
 
 ---
 
-### Method 2: Running with Docker Compose (Single Command)
+## 🧪 Automated Testing & Code Quality
 
-If you have Docker and Docker Compose installed, you can start the entire stack (MySQL 8, Backend, and Frontend) in one command:
+### Backend Unit & Integration Tests (JUnit 5 + Mockito)
+The backend test suite validates business invariants, entitlement calculations, atomic POS concurrency, and idempotency guarantees:
 
-1. In the project root directory, run:
-   ```bash
-   docker-compose up --build -d
-   ```
-
-2. Docker Compose will automatically build the containers and launch:
-   - **Frontend**: `http://localhost:5173`
-   - **Backend API**: `http://localhost:8080`
-   - **MySQL 8 Database**: `localhost:3306`
-
-3. To view running logs:
-   ```bash
-   docker-compose logs -f
-   ```
-
-4. To stop the containers:
-   ```bash
-   docker-compose down
-   ```
-
----
-
-## 🧪 Testing & Build Verification
-
-### Backend Automated Test Suite
-The backend includes automated tests covering:
-- Statutory Entitlement Formulae (`PER_MEMBER`, `FIXED_PER_CARD`, Max Quota Caps)
-- Atomic POS Distribution with FIFO Batch Deduction
-- Concurrency Protection & Over-Entitlement Rejection (HTTP 422)
-- Idempotency Key deduplication
-
-To run the backend tests:
 ```bash
 cd backend
 mvn test
 ```
 
-Expected result:
+Test Results:
 ```text
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
 [INFO] Running com.smartration.DistributionServiceTest
-[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0 - Atomic POS Verification
 [INFO] Running com.smartration.EntitlementServiceTest
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0 - NFSA Formula Verification
+[INFO] 
+[INFO] Results:
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS
 ```
 
-### Frontend Production Build
-To verify TypeScript compilation and generate the optimized production bundle:
+### Frontend Type Safety & Production Build
+The frontend adheres to strict TypeScript standards (`verbatimModuleSyntax`):
+
 ```bash
 cd frontend
 npm run build
 ```
 
-Expected output:
+Build Output:
 ```text
 ✓ 3036 modules transformed.
-✓ built in ~8s
+dist/index.html                     1.04 kB │ gzip:   0.55 kB
+dist/assets/index-Bp6iHpxG.css     50.20 kB │ gzip:   8.83 kB
+dist/assets/index-qh3GNk_S.js   1,015.33 kB │ gzip: 296.32 kB
+✓ built in ~8.5s with 0 errors
 ```
 
 ---
 
-## 📡 Key REST API Endpoints
+## 📡 REST API Documentation
 
-| Method | Endpoint | Description | Role Required |
+All protected endpoints require an `Authorization: Bearer <JWT>` header obtained via the login endpoint.
+
+| Method | Endpoint | Description | Role Authorization |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/login` | Authenticate user & return JWT token | Public |
+| `POST` | `/api/auth/login` | Authenticate user & receive JWT token | Public |
 | `GET` | `/api/auth/me` | Fetch currently authenticated user profile | Any Authenticated |
-| `GET` | `/api/analytics` | Aggregated dashboard KPIs and commodity stock metrics | Any Authenticated |
-| `GET` | `/api/analytics/stream` | Server-Sent Events (SSE) live stock update channel | Any Authenticated |
-| `GET` | `/api/ration-cards` | Search and filter ration cards | Staff / Auditor |
-| `GET` | `/api/ration-cards/{id}/entitlements` | Compute dynamic monthly entitlement and quota | Operator / Beneficiary |
-| `POST` | `/api/distributions` | Execute atomic POS distribution transaction | Operator / Admin |
-| `GET` | `/api/distributions/receipt/{ref}`| Fetch printable transaction receipt | Any Authenticated |
-| `POST` | `/api/stock/receive` | Inward stock consignment from warehouse | Operator / Admin |
+| `GET` | `/api/analytics` | Aggregated dashboard KPIs, low-stock alerts & charts | Any Authenticated |
+| `GET` | `/api/analytics/stream` | Server-Sent Events (SSE) real-time stock stream | Any Authenticated |
+| `GET` | `/api/ration-cards` | Query ration cards with category, shop & text filters | Staff / Auditor |
+| `GET` | `/api/ration-cards/{id}/entitlements` | Calculate dynamic monthly quota & remaining balance | Operator / Beneficiary |
+| `POST` | `/api/distributions` | Execute atomic POS distribution with idempotency key | Operator / Admin |
+| `GET` | `/api/distributions/receipt/{ref}` | Retrieve formatted receipt for thermal printing | Any Authenticated |
+| `POST` | `/api/stock/receive` | Inward stock consignment from FCI warehouse | Operator / Admin |
 | `POST` | `/api/stock/adjust` | Record authorized inventory adjustment with audit reason | Operator / Admin |
 | `GET` | `/api/stock/movements` | Query traceable inventory ledger movements | Staff / Auditor |
-| `GET` | `/api/reports/reconciliation` | Compare physical vs book stock & detect discrepancies | Staff / Auditor |
-| `GET` | `/api/reports/export/distributions` | Export date-wise distribution ledger to CSV | Staff / Auditor |
-| `POST` | `/api/complaints` | File citizen grievance / complaint | Beneficiary |
-| `GET` | `/api/audit-logs` | Immutable audit ledger of all privileged operations | Auditor / Admin |
+| `GET` | `/api/reports/reconciliation` | Reconcile physical inventory vs book records | Staff / Auditor |
+| `GET` | `/api/reports/export/distributions`| Export date-wise distribution ledger to CSV | Staff / Auditor |
+| `POST` | `/api/complaints` | Submit citizen grievance with category & description | Beneficiary |
+| `GET` | `/api/audit-logs` | Immutable audit trail of privileged administrative actions | Auditor / Admin |
+
+---
+
+## 🗄️ Database Entity Schema
+
+The database consists of **14 normalized tables** governed by foreign keys and constraints:
+
+```mermaid
+erDiagram
+    RATION_SHOPS ||--o{ USERS : employs
+    RATION_SHOPS ||--o{ STOCK_BATCHES : stocks
+    RATION_SHOPS ||--o{ RATION_CARDS : serves
+    RATION_SHOPS ||--o{ DISTRIBUTIONS : conducts
+    
+    COMMODITIES ||--o{ STOCK_BATCHES : categorized
+    COMMODITIES ||--o{ ENTITLEMENT_RULES : governs
+    COMMODITIES ||--o{ DISTRIBUTION_ITEMS : distributed
+    
+    RATION_CARDS ||--o{ FAMILY_MEMBERS : includes
+    RATION_CARDS ||--o{ DISTRIBUTIONS : receives
+    RATION_CARDS ||--o{ COMPLAINTS : files
+    
+    DISTRIBUTIONS ||--o{ DISTRIBUTION_ITEMS : contains
+    STOCK_BATCHES ||--o{ STOCK_MOVEMENTS : tracks
+```
 
 ---
 
@@ -298,50 +347,62 @@ SmartRation/
 │   ├── src/
 │   │   ├── main/
 │   │   │   ├── java/com/smartration/
-│   │   │   │   ├── config/          # Spring Security, JWT Filter, CORS, SSE
-│   │   │   │   ├── controller/      # REST API Controllers
-│   │   │   │   ├── dto/             # Request & Response Data Transfer Objects
-│   │   │   │   ├── entity/          # JPA Hibernate Entities (14 tables)
-│   │   │   │   ├── repository/      # Spring Data JPA Repositories
-│   │   │   │   ├── service/         # Business Logic & Entitlement Engine
+│   │   │   │   ├── config/            # Security, JWT Filter, CORS, SSE Emitters
+│   │   │   │   ├── controller/        # REST API Controllers (Auth, POS, Stock, Reports)
+│   │   │   │   ├── dto/               # Request & Response Data Transfer Objects
+│   │   │   │   ├── entity/            # 14 JPA Hibernate Entities
+│   │   │   │   ├── repository/        # Spring Data JPA Repositories
+│   │   │   │   ├── service/           # Entitlement Engine & Atomic POS Services
 │   │   │   │   └── SmartRationApplication.java
 │   │   │   └── resources/
-│   │   │       ├── db/migration/    # Flyway V1 Tables & V2 Demo Data Seed
-│   │   │       ├── application.yml  # MySQL production configuration
-│   │   │       └── application-h2.yml # Zero-config in-memory profile
-│   │   └── test/                    # JUnit 5 & Mockito test suites
-│   └── pom.xml                      # Maven project configuration
+│   │   │       ├── db/migration/      # Flyway V1 DDL Schema & V2 Demo Seeds
+│   │   │       ├── application.yml    # MySQL Production Configuration
+│   │   │       └── application-h2.yml # Zero-Config In-Memory Profile
+│   │   └── test/                      # JUnit 5 & Mockito Test Suites
+│   └── pom.xml                        # Maven Dependencies & Plugins
 ├── frontend/
 │   ├── public/
-│   │   └── smart-ration-logo.png    # Official Smart Ration Crest Logo
+│   │   └── smart-ration-logo.png      # Official Smart Ration Crest Emblem
 │   ├── src/
-│   │   ├── components/              # 3D Logo, Navbar, Sidebar, Particles, Badges
-│   │   ├── context/                 # AuthContext (JWT State & Roles)
-│   │   ├── pages/                   # All application pages
-│   │   │   ├── SplashIntroPage.tsx  # 5-second 3D Crest Splash Screen
-│   │   │   ├── LoginPage.tsx        # 3D Opening Book Login Screen
-│   │   │   ├── DashboardPage.tsx    # Live KPIs & Stock Velocity Analytics
-│   │   │   ├── DistributionPage.tsx # Point-of-Sale (POS) Quota Distribution
-│   │   │   ├── StockManagementPage.tsx # Inward Stock & Adjustments Ledger
-│   │   │   ├── RationCardsPage.tsx  # Ration Card Directory & Enrollment
-│   │   │   ├── ReportsPage.tsx      # Stock Reconciliation & CSV Exports
-│   │   │   ├── ComplaintsPage.tsx   # Citizen Grievance Portal
-│   │   │   ├── AuditLogsPage.tsx    # Immutable Security Audit Ledger
-│   │   │   ├── EntitlementsPage.tsx # Statutory Rule Matrix Configuration
-│   │   │   └── UsersShopsPage.tsx   # FPS Shop & User Account Directory
-│   │   ├── services/                # Axios API client modules
-│   │   └── types/                   # TypeScript interfaces & domain models
+│   │   ├── components/                # 3D Book, Falling Particles, Navbar, Modals
+│   │   ├── context/                   # AuthContext (JWT State & RBAC)
+│   │   ├── pages/                     # Full Application Views
+│   │   │   ├── SplashIntroPage.tsx    # 5-Second 3D Crest Splash Intro
+│   │   │   ├── LoginPage.tsx          # 3D Opening Book Login Screen
+│   │   │   ├── DashboardPage.tsx      # Real-Time Inventory & Velocity Analytics
+│   │   │   ├── DistributionPage.tsx   # POS Counter & Receipt Modal
+│   │   │   ├── StockManagementPage.tsx# Inward FCI Consignments & Ledger
+│   │   │   ├── RationCardsPage.tsx    # Card Directory & Family Enrolment
+│   │   │   ├── ReportsPage.tsx        # Stock Reconciliation & CSV Exports
+│   │   │   ├── ComplaintsPage.tsx     # Citizen Grievance Redressal
+│   │   │   ├── AuditLogsPage.tsx      # Immutable Security Audit Ledger
+│   │   │   ├── EntitlementsPage.tsx   # Statutory NFSA Quota Rules Matrix
+│   │   │   └── UsersShopsPage.tsx     # Fair Price Shops & Account Provisioning
+│   │   ├── services/                  # Axios REST API Service Modules
+│   │   └── types/                     # TypeScript Domain Interfaces
 │   ├── package.json
-│   ├── tailwind.config.js
+│   ├── tailwind.config.js             # Pristine White & Government Color Palette
 │   └── vite.config.ts
-├── docker-compose.yml               # Multi-container orchestration
-└── README.md                        # Master Project Documentation
+├── docker-compose.yml                 # Multi-Container Orchestration
+└── README.md                          # Master Project Documentation
 ```
 
 ---
 
-## 🛡️ License
+## 🔒 Security Best Practices Implemented
 
-This project is licensed under the **MIT License** — feel free to use, modify, and distribute it for academic, research, or enterprise evaluation purposes.
-#   S m a r t - R a t i o n - S h o p - M a n a g e m e n t - S y s t e m - W i t h - R e a l - T i m e - S t o c k - A n a l y t i c s  
- 
+- **HMAC-SHA384 Signed JWTs**: Stateless authentication with short expiration times and secure token refreshing.
+- **BCrypt Password Hashing**: Passwords salt-hashed with cost factor 10.
+- **Idempotency Protection**: Every POS transaction carries a client-generated UUID idempotency key to prevent double debiting during network drops.
+- **SQL Injection Prevention**: Parameterized queries enforced via Spring Data JPA.
+- **Read-Only Audit Trail**: Privileged administrative actions trigger immutable records in the `audit_logs` table.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — feel free to use, fork, and adapt it for academic research, government digitization pilot programs, or enterprise evaluation.
+
+<div align="center">
+  <b>Built with ❤️ for Transparent Food Security & Public Distribution</b>
+</div>
