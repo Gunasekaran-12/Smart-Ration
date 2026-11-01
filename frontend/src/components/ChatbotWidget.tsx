@@ -41,11 +41,12 @@ const INITIAL_SUGGESTIONS = [
 export const ChatbotWidget: React.FC = () => {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [conversationId] = useState<string>(() => `widget-${Date.now()}`);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
       sender: 'bot',
-      text: 'Vanakkam! Welcome to the Smart Ration Shop Management System with Real-Time Stock Analytics AI Assistant. I can check live database stock levels, shop opening hours, monthly distribution dates, and 30-minute slot booking availability directly from MySQL `smart`. How may I assist you today?',
+      text: 'Vanakkam! Welcome to the Smart Ration AI Assistant. I can check live database stock levels, shop opening hours, monthly distribution dates, and 30-minute slot booking availability directly from MySQL `smart`. How may I assist you today?',
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       source: 'State Civil Supplies Database (MySQL `smart`)',
     },
@@ -79,11 +80,18 @@ export const ChatbotWidget: React.FC = () => {
     setIsLoading(true);
     setLastFailedMessage(null);
 
+    const historyPayload = messages.slice(-6).map((m) => ({
+      role: m.sender === 'user' ? 'user' : 'assistant',
+      content: m.text,
+    }));
+
     try {
       const response = await chatbotApi.sendMessage(
         textToSend,
         user?.rationCardId,
-        user?.shopId || 1
+        user?.shopId || 1,
+        historyPayload,
+        conversationId
       );
 
       const botMsg: Message = {

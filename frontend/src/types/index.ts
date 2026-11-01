@@ -67,6 +67,7 @@ export interface RationCard {
   id: number;
   cardNumber: string;
   headOfFamily: string;
+  dateOfBirth?: string;
   cardCategory: CardCategory;
   familyMemberCount: number;
   shopId: number;
@@ -311,11 +312,20 @@ export interface RationBooking {
 }
 
 export interface SlotAvailability {
+  slotId?: number;
+  id?: number;
+  shopId?: number;
+  shopName?: string;
+  slotDate?: string;
+  startTime?: string;
+  endTime?: string;
   slotTime: string;
   maxCapacity: number;
   bookedCount: number;
   availableCapacity: number;
+  remainingCapacity?: number;
   isAvailable: boolean;
+  isActive?: boolean;
 }
 
 export interface OtpResponse {

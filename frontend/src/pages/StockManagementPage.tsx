@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   PackagePlus,
   AlertOctagon,
@@ -7,24 +7,44 @@ import {
   Layers,
   ArrowDownRight,
   History,
+  PlusCircle,
+  Search,
+  Filter,
+  X,
+  PackageCheck,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { stockApi, commodityApi } from '../services';
-import type { StockMovement, StockBatch, Commodity } from '../types';
+import type { StockMovement, StockBatch, Commodity, StockSummary } from '../types';
 import PageContainer from '../components/PageContainer';
 import StatusBadge from '../components/StatusBadge';
 
 export const StockManagementPage: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'movements' | 'receive' | 'adjust'>('movements');
+  const [activeTab, setActiveTab] = useState<'movements' | 'receive' | 'adjust' | 'overview'>('overview');
   const [movements, setMovements] = useState<StockMovement[]>([]);
   const [batches, setBatches] = useState<StockBatch[]>([]);
   const [commodities, setCommodities] = useState<Commodity[]>([]);
+  const [stockSummaries, setStockSummaries] = useState<StockSummary[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Search & Filters for commodities / stock
+  const [searchQuery, setSearchQuery] = useState('');
+  const [stockFilter, setStockFilter] = useState<'ALL' | 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK'>('ALL');
+
+  // New Commodity Modal State (Super Admin)
+  const [isAddCommodityOpen, setIsAddCommodityOpen] = useState(false);
+  const [commodityForm, setCommodityForm] = useState({
+    code: '',
+    name: '',
+    measurementUnit: 'KG',
+    subsidizedPrice: 0.0,
+    lowStockThreshold: 50.0,
+  });
 
   // Inward Receipt Form State
   const [receiveForm, setReceiveForm] = useState({
@@ -47,8 +67,18 @@ export const StockManagementPage: React.FC = () => {
   useEffect(() => {
     loadCommodities();
     loadBatches();
+    loadStockSummaries();
     loadMovements();
   }, [page]);
+
+  const loadStockSummaries = async () => {
+    try {
+      const data = await stockApi.getStockSummary(user?.shopId || 1);
+      setStockSummaries(data);
+    } catch (e) {
+      console.error('Failed to load stock summaries', e);
+    }
+  };
 
   const loadCommodities = async () => {
     try {
@@ -108,7 +138,8 @@ export const StockManagementPage: React.FC = () => {
       setSuccessMsg('Stock batch successfully recorded in traceable ledger!');
       loadMovements();
       loadBatches();
-      setActiveTab('movements');
+      loadStockSummaries();
+      setActiveTab('overview');
     } catch (err: any) {
       setErrorMsg(err.response?.data?.message || 'Failed to record stock batch');
     }
@@ -137,19 +168,88 @@ export const StockManagementPage: React.FC = () => {
       setSuccessMsg('Stock adjustment recorded successfully.');
       loadMovements();
       loadBatches();
-      setActiveTab('movements');
+      loadStockSummaries();
+      setActiveTab('overview');
     } catch (err: any) {
       setErrorMsg(err.response?.data?.message || 'Failed to process adjustment');
     }
   };
 
+  const handleCreateCommodity = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    if (!commodityForm.code.trim() || !commodityForm.name.trim()) {
+      setErrorMsg('Commodity code and name are mandatory.');
+      return;
+    }
+
+    try {
+      await commodityApi.create({
+        code: commodityForm.code.trim().toUpperCase(),
+        name: commodityForm.name.trim(),
+        measurementUnit: commodityForm.measurementUnit.trim().toUpperCase(),
+        subsidizedPrice: Number(commodityForm.subsidizedPrice),
+        lowStockThreshold: Number(commodityForm.lowStockThreshold),
+        isActive: true,
+      });
+
+      setSuccessMsg(`Commodity "${commodityForm.name}" created successfully.`);
+      setIsAddCommodityOpen(false);
+      setCommodityForm({
+        code: '',
+        name: '',
+        measurementUnit: 'KG',
+        subsidizedPrice: 0.0,
+        lowStockThreshold: 50.0,
+      });
+      loadCommodities();
+      loadStockSummaries();
+    } catch (err: any) {
+      setErrorMsg(err.response?.data?.message || 'Failed to create new commodity');
+    }
+  };
+
+  // Filtered summaries
+  const filteredSummaries = stockSummaries.filter((s) => {
+    const matchesQuery = s.commodityName.toLowerCase().includes(searchQuery.toLowerCase())
+      || s.commodityCode.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesQuery) return false;
+
+    if (stockFilter === 'IN_STOCK') return Number(s.currentStock) > Number(s.lowStockThreshold);
+    if (stockFilter === 'LOW_STOCK') return Number(s.currentStock) > 0 && Number(s.currentStock) <= Number(s.lowStockThreshold);
+    if (stockFilter === 'OUT_OF_STOCK') return Number(s.currentStock) <= 0;
+    return true;
+  });
+
   return (
     <PageContainer
       title="Warehouse Stock Ledger & Movements"
-      subtitle="Record incoming central consignments, track immutable batch ledger, and execute authorized adjustments"
+      subtitle="Centralized, persistent inventory management with real-time stock balances and traceable audit ledger"
       actions={
         user?.role !== 'AUDITOR' ? (
           <div className="flex items-center gap-2">
+            {user?.role === 'SUPER_ADMIN' && (
+              <button
+                onClick={() => setIsAddCommodityOpen(true)}
+                className="px-3.5 py-2 text-xs font-bold rounded-xl flex items-center gap-1.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25 transition-all shadow-sm"
+              >
+                <PlusCircle size={15} />
+                <span>Add Commodity</span>
+              </button>
+            )}
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`px-3.5 py-2 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all ${
+                activeTab === 'overview'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-lg shadow-emerald-950/50'
+                  : 'bg-slate-900/80 text-slate-300 border border-slate-700/60 hover:bg-slate-800 hover:text-white'
+              }`}
+            >
+              <PackageCheck size={16} />
+              Stock Overview
+            </button>
             <button
               onClick={() => setActiveTab('receive')}
               className={`px-3.5 py-2 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all ${
@@ -172,6 +272,17 @@ export const StockManagementPage: React.FC = () => {
               <AlertOctagon size={16} />
               Stock Adjustment
             </button>
+            <button
+              onClick={() => setActiveTab('movements')}
+              className={`px-3.5 py-2 text-xs font-bold rounded-xl flex items-center gap-1.5 transition-all ${
+                activeTab === 'movements'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-lg shadow-emerald-950/50'
+                  : 'bg-slate-900/80 text-slate-300 border border-slate-700/60 hover:bg-slate-800 hover:text-white'
+              }`}
+            >
+              <History size={16} />
+              Audit Ledger
+            </button>
           </div>
         ) : undefined
       }
@@ -190,7 +301,115 @@ export const StockManagementPage: React.FC = () => {
         </div>
       )}
 
-      {/* Tabs View */}
+      {/* 1. STOCK OVERVIEW TAB */}
+      {activeTab === 'overview' && (
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-4"
+        >
+          {/* Search and Filters Bar */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-[#091120]/90 border border-white/10 backdrop-blur-xl">
+            <div className="relative w-full sm:w-72">
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search commodity by name or code..."
+                className="w-full pl-9 pr-3 py-2 bg-slate-950/60 border border-slate-700/60 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
+              <span className="text-[11px] font-mono uppercase text-slate-400 flex items-center gap-1">
+                <Filter size={12} /> Filter:
+              </span>
+              {(['ALL', 'IN_STOCK', 'LOW_STOCK', 'OUT_OF_STOCK'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setStockFilter(mode)}
+                  className={`px-3 py-1 rounded-xl text-[11px] font-mono uppercase font-bold transition-all ${
+                    stockFilter === mode
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                      : 'bg-white/5 text-slate-400 hover:text-white border border-white/5'
+                  }`}
+                >
+                  {mode.replace('_', ' ')}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredSummaries.map((s) => {
+              const stock = Number(s.currentStock);
+              const threshold = Number(s.lowStockThreshold);
+              const isOut = stock <= 0;
+              const isLow = !isOut && stock <= threshold;
+
+              return (
+                <div
+                  key={s.commodityId}
+                  className="p-5 rounded-2xl bg-gradient-to-br from-[#0c1629]/90 to-[#070d18]/90 border border-white/10 backdrop-blur-xl hover:border-emerald-500/30 transition-all shadow-xl space-y-3"
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                        Code: {s.commodityCode}
+                      </span>
+                      <h4 className="text-sm font-bold text-white mt-0.5">{s.commodityName}</h4>
+                    </div>
+                    {isOut ? (
+                      <span className="px-2 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[10px] font-mono font-bold">
+                        OUT OF STOCK
+                      </span>
+                    ) : isLow ? (
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-mono font-bold">
+                        LOW BUFFER
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-bold">
+                        IN STOCK
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-baseline justify-between pt-2 border-t border-white/5">
+                    <div>
+                      <span className="text-[10px] text-slate-400 font-mono">Available Stock</span>
+                      <div className="text-2xl font-black text-white">
+                        {stock.toFixed(2)} <span className="text-xs font-normal text-slate-400">{s.measurementUnit}</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] text-slate-400 font-mono">Buffer Threshold</span>
+                      <div className="text-xs font-bold text-slate-300">
+                        {threshold.toFixed(2)} {s.measurementUnit}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px] pt-1 text-slate-400 font-mono">
+                    <span>Today Distributed: {Number(s.todayDistributed || 0).toFixed(2)} {s.measurementUnit}</span>
+                    <button
+                      onClick={() => {
+                        setReceiveForm((f) => ({ ...f, commodityId: s.commodityId }));
+                        setActiveTab('receive');
+                      }}
+                      className="text-emerald-400 hover:text-emerald-300 font-bold underline"
+                    >
+                      + Add Stock
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
+
+      {/* 2. TRACEABLE MOVEMENTS LEDGER TAB */}
       {activeTab === 'movements' && (
         <motion.div
           initial={{ opacity: 0, y: 14 }}
@@ -251,22 +470,22 @@ export const StockManagementPage: React.FC = () => {
                       </td>
                       <td
                         className={`py-3.5 px-4 text-right font-bold ${
-                          Number(m.quantity) > 0 ? 'text-emerald-400' : 'text-slate-300'
+                          m.quantity > 0 ? 'text-emerald-400' : 'text-rose-400'
                         }`}
                       >
-                        {Number(m.quantity) > 0 ? `+${m.quantity}` : m.quantity} {m.commodity?.measurementUnit}
+                        {m.quantity > 0 ? `+${m.quantity}` : m.quantity} {m.commodity?.measurementUnit}
                       </td>
-                      <td className="py-3.5 px-4 text-right font-extrabold text-slate-100">
+                      <td className="py-3.5 px-4 text-right font-bold text-slate-100">
                         {m.balanceAfter} {m.commodity?.measurementUnit}
                       </td>
-                      <td className="py-3.5 px-4 text-[11px] text-slate-400">
-                        {m.referenceId || '—'}
+                      <td className="py-3.5 px-4 text-slate-400 text-[11px] truncate max-w-[120px]">
+                        {m.referenceId || 'N/A'}
                       </td>
-                      <td className="py-3.5 px-4 text-slate-300 max-w-xs truncate font-sans">
-                        {m.reason || '—'}
+                      <td className="py-3.5 px-4 text-slate-400 text-[11px] font-sans truncate max-w-[200px]" title={m.reason}>
+                        {m.reason || 'Standard transaction'}
                       </td>
-                      <td className="py-3.5 px-4 text-slate-400 font-sans">
-                        {m.performedByUser?.fullName || 'System'}
+                      <td className="py-3.5 px-4 text-slate-400 text-[11px] font-sans">
+                        {m.performedByUser ? m.performedByUser.fullName : 'System'}
                       </td>
                     </tr>
                   ))
@@ -275,22 +494,21 @@ export const StockManagementPage: React.FC = () => {
             </table>
           </div>
 
-          {/* Pagination */}
-          <div className="p-4 border-t border-slate-800/80 flex justify-between items-center text-xs">
+          <div className="p-4 border-t border-slate-800 flex justify-between items-center bg-slate-950/20 text-xs">
             <button
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={page === 0}
-              className="px-3 py-1.5 rounded-lg border border-slate-700/60 bg-slate-950/50 text-slate-300 hover:bg-slate-800 disabled:opacity-40 transition-colors"
+              disabled={page <= 0}
+              onClick={() => setPage(page - 1)}
+              className="px-3 py-1.5 rounded-lg border border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-800 text-slate-300 transition-colors"
             >
               Previous
             </button>
-            <span className="text-slate-400 font-mono">
-              {isLoading ? 'Updating ledger...' : `Page ${page + 1} of ${totalPages || 1}`} ({batches.length} tracked batches)
+            <span className="text-slate-400">
+              Page {page + 1} of {totalPages || 1}
             </span>
             <button
-              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-              disabled={page >= totalPages - 1}
-              className="px-3 py-1.5 rounded-lg border border-slate-700/60 bg-slate-950/50 text-slate-300 hover:bg-slate-800 disabled:opacity-40 transition-colors"
+              disabled={page + 1 >= totalPages}
+              onClick={() => setPage(page + 1)}
+              className="px-3 py-1.5 rounded-lg border border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-800 text-slate-300 transition-colors"
             >
               Next
             </button>
@@ -298,7 +516,7 @@ export const StockManagementPage: React.FC = () => {
         </motion.div>
       )}
 
-      {/* Inward Receipt Form Modal/Card */}
+      {/* 3. INWARD RECEIPT TAB */}
       {activeTab === 'receive' && (
         <motion.div
           initial={{ opacity: 0, scale: 0.96, y: 14 }}
@@ -308,10 +526,10 @@ export const StockManagementPage: React.FC = () => {
           <div className="flex justify-between items-center border-b border-slate-800 pb-3">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <PackagePlus size={20} className="text-emerald-400" />
-              <span>Record Inward Stock from Warehouse</span>
+              <span>Record Warehouse Inward Consignment</span>
             </h3>
             <button
-              onClick={() => setActiveTab('movements')}
+              onClick={() => setActiveTab('overview')}
               className="text-xs text-slate-400 hover:text-white transition-colors"
             >
               Cancel
@@ -330,7 +548,7 @@ export const StockManagementPage: React.FC = () => {
               >
                 {commodities.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.name} ({c.measurementUnit})
+                    {c.name} ({c.code}) - Unit: {c.measurementUnit}
                   </option>
                 ))}
               </select>
@@ -345,8 +563,8 @@ export const StockManagementPage: React.FC = () => {
                   type="text"
                   value={receiveForm.batchNumber}
                   onChange={(e) => setReceiveForm({ ...receiveForm, batchNumber: e.target.value })}
-                  placeholder="e.g. BATCH-2026-RICE-05"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-emerald-400 font-bold focus:border-emerald-500/80 focus:outline-none"
+                  placeholder="e.g. BATCH-2026-RICE-03"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-slate-100 focus:border-emerald-500/80 focus:outline-none uppercase"
                 />
               </div>
 
@@ -395,7 +613,7 @@ export const StockManagementPage: React.FC = () => {
             <div className="pt-3 flex justify-end gap-3 font-sans">
               <button
                 type="button"
-                onClick={() => setActiveTab('movements')}
+                onClick={() => setActiveTab('overview')}
                 className="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
               >
                 Cancel
@@ -412,7 +630,7 @@ export const StockManagementPage: React.FC = () => {
         </motion.div>
       )}
 
-      {/* Authorized Stock Adjustment Form */}
+      {/* 4. STOCK ADJUSTMENT TAB */}
       {activeTab === 'adjust' && (
         <motion.div
           initial={{ opacity: 0, scale: 0.96, y: 14 }}
@@ -425,7 +643,7 @@ export const StockManagementPage: React.FC = () => {
               <span>Record Authorized Stock Adjustment</span>
             </h3>
             <button
-              onClick={() => setActiveTab('movements')}
+              onClick={() => setActiveTab('overview')}
               className="text-xs text-slate-400 hover:text-white transition-colors"
             >
               Cancel
@@ -498,7 +716,7 @@ export const StockManagementPage: React.FC = () => {
             <div className="pt-3 flex justify-end gap-3 font-sans">
               <button
                 type="button"
-                onClick={() => setActiveTab('movements')}
+                onClick={() => setActiveTab('overview')}
                 className="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
               >
                 Cancel
@@ -513,6 +731,112 @@ export const StockManagementPage: React.FC = () => {
           </form>
         </motion.div>
       )}
+
+      {/* 5. ADD COMMODITY MODAL (Super Admin) */}
+      <AnimatePresence>
+        {isAddCommodityOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-md p-6 rounded-3xl bg-[#0c1629] border border-white/10 shadow-2xl text-slate-100 space-y-4"
+            >
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <PlusCircle size={16} className="text-emerald-400" />
+                  <span>Register New Ration Commodity</span>
+                </h3>
+                <button
+                  onClick={() => setIsAddCommodityOpen(false)}
+                  className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateCommodity} className="space-y-3 text-xs">
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Commodity Code (Unique)</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. GRAM_DAL"
+                    value={commodityForm.code}
+                    onChange={(e) => setCommodityForm({ ...commodityForm, code: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white uppercase focus:border-emerald-500 focus:outline-none font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-semibold mb-1">Commodity Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Bengal Gram / கொண்டக்கடலை"
+                    value={commodityForm.name}
+                    onChange={(e) => setCommodityForm({ ...commodityForm, name: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white focus:border-emerald-500 focus:outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">Unit</label>
+                    <select
+                      value={commodityForm.measurementUnit}
+                      onChange={(e) => setCommodityForm({ ...commodityForm, measurementUnit: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white focus:border-emerald-500 focus:outline-none font-mono"
+                    >
+                      <option value="KG">KG</option>
+                      <option value="LITRE">LITRE</option>
+                      <option value="PACKET">PACKET</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">Price (₹)</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      value={commodityForm.subsidizedPrice}
+                      onChange={(e) => setCommodityForm({ ...commodityForm, subsidizedPrice: parseFloat(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">Low Buffer</label>
+                    <input
+                      type="number"
+                      step="1"
+                      min="1"
+                      value={commodityForm.lowStockThreshold}
+                      onChange={(e) => setCommodityForm({ ...commodityForm, lowStockThreshold: parseFloat(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white font-mono focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddCommodityOpen(false)}
+                    className="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold hover:from-emerald-500 hover:to-teal-500 transition-all shadow-md"
+                  >
+                    Register Commodity
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </PageContainer>
   );
 };

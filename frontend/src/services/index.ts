@@ -63,6 +63,10 @@ export const rationCardApi = {
     const res = await api.put<RationCard>(`/ration-cards/${id}`, data);
     return res.data;
   },
+  toggleStatus: async (id: number) => {
+    const res = await api.patch<RationCard>(`/ration-cards/${id}/toggle-status`);
+    return res.data;
+  },
 };
 
 export const distributionApi = {
@@ -269,7 +273,15 @@ export const bookingApi = {
     const res = await api.get<any[]>('/bookings/slots', { params: { shopId, date } });
     return res.data;
   },
-  createBooking: async (payload: { rationCardId: number; shopId: number; slotDate: string; slotTime: string }) => {
+  createBooking: async (payload: {
+    rationCardId: number;
+    shopId: number;
+    slotId?: number;
+    bookingDate?: string;
+    slotDate?: string;
+    slotTime?: string;
+    requestedItems?: any[];
+  }) => {
     const res = await api.post<any>('/bookings', payload);
     return res.data;
   },
@@ -277,8 +289,8 @@ export const bookingApi = {
     const res = await api.get<any[]>('/bookings/my', { params: cardId ? { cardId } : {} });
     return res.data;
   },
-  cancelBooking: async (id: number) => {
-    const res = await api.patch<any>(`/bookings/${id}/cancel`);
+  cancelBooking: async (id: number, reason?: string) => {
+    const res = await api.patch<any>(`/bookings/${id}/cancel`, reason ? { reason } : {});
     return res.data;
   },
 };
@@ -319,17 +331,28 @@ export const datasetApi = {
 };
 
 export const chatbotApi = {
-  sendMessage: async (message: string, cardId?: number, shopId?: number) => {
+  sendMessage: async (
+    message: string,
+    cardId?: number,
+    shopId?: number,
+    history?: { role: string; content: string }[],
+    conversationId?: string
+  ) => {
     const res = await api.post<{
       reply: string;
       quickReplies: string[];
       suggestions?: string[];
       source?: string;
       timestamp: string;
+      conversationId?: string;
+      resolvedEntity?: string;
+      data?: Record<string, any>;
     }>('/chatbot/message', {
       message,
       rationCardId: cardId,
       shopId: shopId || 1,
+      history,
+      conversationId,
     });
     return {
       ...res.data,

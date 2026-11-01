@@ -10,6 +10,7 @@ import {
   X,
   Users,
   CreditCard,
+  Power,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { rationCardApi, shopApi } from '../services';
@@ -36,6 +37,7 @@ export const RationCardsPage: React.FC = () => {
   const [formData, setFormData] = useState({
     cardNumber: '',
     headOfFamily: '',
+    dateOfBirth: '',
     cardCategory: 'BPL' as CardCategory,
     shopId: 1,
     address: '',
@@ -87,6 +89,7 @@ export const RationCardsPage: React.FC = () => {
     setFormData({
       cardNumber: `RC-KA-01-${Math.floor(Math.random() * 899999 + 100000)}`,
       headOfFamily: '',
+      dateOfBirth: '1985-06-15',
       cardCategory: 'BPL',
       shopId: user?.shopId || shops[0]?.id || 1,
       address: '',
@@ -104,6 +107,7 @@ export const RationCardsPage: React.FC = () => {
     setFormData({
       cardNumber: c.cardNumber,
       headOfFamily: c.headOfFamily,
+      dateOfBirth: c.dateOfBirth || '',
       cardCategory: c.cardCategory,
       shopId: c.shopId,
       address: c.address || '',
@@ -131,6 +135,17 @@ export const RationCardsPage: React.FC = () => {
       ...prev,
       familyMembers: prev.familyMembers.filter((_, i) => i !== idx),
     }));
+  };
+
+  const handleToggleStatus = async (card: RationCard) => {
+    const action = card.isActive ? 'deactivate' : 'activate';
+    if (!window.confirm(`Are you sure you want to ${action} ration card ${card.cardNumber}?`)) return;
+    try {
+      await rationCardApi.toggleStatus(card.id);
+      loadCards();
+    } catch (err: any) {
+      alert(err.response?.data?.message || `Failed to ${action} ration card`);
+    }
   };
 
   const handleSaveCard = async (e: React.FormEvent) => {
@@ -267,9 +282,22 @@ export const RationCardsPage: React.FC = () => {
                           <button
                             onClick={() => openEditModal(c)}
                             className="p-1.5 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-slate-800/70 transition-colors"
-                            title="Edit Card"
+                            title="Edit Card & Family Members"
                           >
                             <Edit2 size={16} />
+                          </button>
+                        )}
+                        {(user?.role === 'SUPER_ADMIN' || user?.role === 'SHOP_OPERATOR') && (
+                          <button
+                            onClick={() => handleToggleStatus(c)}
+                            className={`p-1.5 rounded-lg transition-colors ${
+                              c.isActive
+                                ? 'text-slate-400 hover:text-rose-400 hover:bg-slate-800/70'
+                                : 'text-slate-500 hover:text-emerald-400 hover:bg-slate-800/70'
+                            }`}
+                            title={c.isActive ? 'Deactivate Card' : 'Activate Card'}
+                          >
+                            <Power size={16} />
                           </button>
                         )}
                       </div>
@@ -407,15 +435,26 @@ export const RationCardsPage: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block font-semibold text-slate-300 mb-1">
-                      Fictional Card Number
+                      Card Number
                     </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.cardNumber}
-                      onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
-                      className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 font-bold text-emerald-400 focus:bg-slate-950 focus:border-emerald-500/80 focus:outline-none"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        required
+                        value={formData.cardNumber}
+                        onChange={(e) => setFormData({ ...formData, cardNumber: e.target.value })}
+                        placeholder="e.g. RC-KA-01-123456"
+                        className="flex-1 px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 font-bold text-emerald-400 focus:bg-slate-950 focus:border-emerald-500/80 focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, cardNumber: `RC-KA-01-${Math.floor(Math.random() * 899999 + 100000)}` })}
+                        className="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-mono text-[11px] font-bold border border-slate-700 cursor-pointer"
+                        title="Generate Unique Card Number"
+                      >
+                        Generate
+                      </button>
+                    </div>
                   </div>
 
                   <div>
@@ -430,6 +469,34 @@ export const RationCardsPage: React.FC = () => {
                       placeholder="Full Name"
                       className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-slate-100 font-sans focus:bg-slate-950 focus:border-emerald-500/80 focus:outline-none"
                     />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block font-semibold text-slate-300 mb-1">
+                      Date of Birth (Head of Family)
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.dateOfBirth}
+                      onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-700/70 bg-slate-950/60 text-slate-100 font-mono focus:bg-slate-950 focus:border-emerald-500/80 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex items-end pb-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.isActive}
+                        onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                        className="w-4 h-4 rounded border-slate-700 bg-slate-950 text-emerald-500 focus:ring-emerald-500"
+                      />
+                      <span className="font-semibold text-slate-200">
+                        {formData.isActive ? 'Active (Eligible for Quotas)' : 'Deactivated / Suspended'}
+                      </span>
+                    </label>
                   </div>
                 </div>
 

@@ -40,7 +40,13 @@ export const BookingPage: React.FC = () => {
     setError(null);
     try {
       const data = await bookingApi.getAvailableSlots(shopId, selectedDate);
-      setSlots(data);
+      const mapped = (data || []).map((s: any) => ({
+        ...s,
+        slotId: s.slotId || s.id,
+        slotTime: s.slotTime || (s.startTime && s.endTime ? s.startTime.toString().slice(0, 5) + ' - ' + s.endTime.toString().slice(0, 5) : '09:00 - 09:30'),
+        availableCapacity: s.remainingCapacity !== undefined ? s.remainingCapacity : (s.availableCapacity !== undefined ? s.availableCapacity : Math.max(0, s.maxCapacity - s.bookedCount)),
+      }));
+      setSlots(mapped);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to retrieve slot availability.');
     } finally {
@@ -51,7 +57,12 @@ export const BookingPage: React.FC = () => {
   const loadMyBookings = async () => {
     try {
       const data = await bookingApi.getMyBookings(user?.rationCardId);
-      setMyBookings(data);
+      const mapped = (data || []).map((b: any) => ({
+        ...b,
+        slotDate: b.slotDate || b.bookingDate,
+        slotTime: b.slotTime || (b.startTime && b.endTime ? b.startTime.toString().slice(0, 5) + ' - ' + b.endTime.toString().slice(0, 5) : '09:00 - 09:30'),
+      }));
+      setMyBookings(mapped);
     } catch (err: any) {
       console.error('Failed to load my bookings', err);
     }
@@ -74,6 +85,8 @@ export const BookingPage: React.FC = () => {
       const res = await bookingApi.createBooking({
         rationCardId: targetCardId,
         shopId,
+        slotId: selectedSlot.slotId || (selectedSlot as any).id,
+        bookingDate: selectedDate,
         slotDate: selectedDate,
         slotTime: selectedSlot.slotTime,
       });
